@@ -4,7 +4,7 @@ This repository includes a full build of the [Conformal Cubic Atmospheric Model]
 
 ## Building the executables
 
-We assume you are running on one of DUG's platforms and that you will be using the Intel compilers for the build.
+It's assumed that you are using an Intel compiler suite for the build.
 
 ```bash
 cd src
