@@ -148,7 +148,8 @@ if ( nvmix==6 ) then
   end do ! k  loop
         
   ! calculate vertical gradients
-  do concurrent (iq = 1:ifull)
+  !mpch add omp
+  do iq = 1,ifull
     zgh_b(iq) = ratha(1)*zg(iq,2) + rathb(1)*zg(iq,1) ! upper half level
     r1 = uav(iq,1)
     r2 = ratha(1)*uav(iq,2) + rathb(1)*uav(iq,1)          
@@ -157,9 +158,10 @@ if ( nvmix==6 ) then
     r2 = ratha(1)*vav(iq,2) + rathb(1)*vav(iq,1)          
     dvdz = (r2-r1)/(zgh_b(iq)-zg(iq,1))
     shear(iq,1) = dudz**2 + dvdz**2
-  end do
+  enddo
   do k = 2,kl-1
-    do concurrent (iq = 1:ifull)
+!mpch - add omp
+  do iq = 1,ifull
       zgh_a(iq) = zgh_b(iq) ! lower half level
       zgh_b(iq) = ratha(k)*zg(iq,k+1) + rathb(k)*zg(iq,k) ! upper half level
       r1 = ratha(k-1)*uav(iq,k) + rathb(k-1)*uav(iq,k-1)
@@ -169,9 +171,10 @@ if ( nvmix==6 ) then
       r2 = ratha(k)*vav(iq,k+1) + rathb(k)*vav(iq,k)          
       dvdz = (r2-r1)/(zgh_b(iq)-zgh_a(iq))
       shear(iq,k) = dudz**2 + dvdz**2
-    end do
-  end do
-  do concurrent (iq = 1:ifull)
+  enddo
+  enddo
+!mpch - add omp
+  do iq = 1,ifull
     zgh_a(iq) = zgh_b(iq) ! lower half level
     r1 = ratha(kl-1)*uav(iq,kl) + rathb(kl-1)*uav(iq,kl-1)
     r2 = uav(iq,kl)          
@@ -180,7 +183,7 @@ if ( nvmix==6 ) then
     r2 = vav(iq,kl)          
     dvdz = (r2-r1)/(zg(iq,kl)-zgh_a(iq))
     shear(iq,k) = dudz**2 + dvdz**2
-  end do
+  enddo
 end if ! nvmix=6
       
 ! usual deformation for nhorjlm=1 or nhorjlm=2
@@ -210,8 +213,8 @@ select case(nhorjlm)
     call boundsuv(uav,vav,allvec=.true.)
     !$acc parallel loop collapse(2) copyin(hdiff,uav,vav,em,emi) copyout(t_kh(1:ifull,1:kl)) &
     !$acc   present(ieu,iwu,inu,isu,iev,iwv,inv,isv)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)
+    do k = 1,kl
+    do iq = 1,ifull
         hdif=dt*hdiff(k) ! N.B.  hdiff(k)=khdif*.1
         dudx = 0.5*(uav(ieu(iq),k)-uav(iwu(iq),k))*em(iq)/ds
         dudy = 0.5*(uav(inu(iq),k)-uav(isu(iq),k))*em(iq)/ds
@@ -219,32 +222,32 @@ select case(nhorjlm)
         dvdy = 0.5*(vav(inv(iq),k)-vav(isv(iq),k))*em(iq)/ds
         r1 = (dvdx+dudy)**2 + 0.5*dudx**2 + 0.5*dvdy**2
         t_kh(iq,k)=sqrt(r1)*hdif*emi(iq)
-      end do
-    end do
+    enddo
+    enddo
     !$acc end parallel loop
              
   case(1)
     ! jlm deformation scheme using 3D uc, vc, wc
     !$acc parallel loop collapse(2) copyin(hdiff,uc,vc,wc,ps) copyout(t_kh(1:ifull,1:kl)) &
     !$acc   present(ie,iw,in,is)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)
+    do k = 1,kl
+    do iq = 1,ifull
         hdif = dt*hdiff(k)/ds ! N.B.  hdiff(k)=khdif*.1
         cc = (uc(ie(iq),k)-uc(iw(iq),k))**2 + (uc(in(iq),k)-uc(is(iq),k))**2 + &
              (vc(ie(iq),k)-vc(iw(iq),k))**2 + (vc(in(iq),k)-vc(is(iq),k))**2 + &
              (wc(ie(iq),k)-wc(iw(iq),k))**2 + (wc(in(iq),k)-wc(is(iq),k))**2
         ! N.B. using double grid length
         t_kh(iq,k)= .5*sqrt(cc)*hdif*ps(iq) ! this one without em in D terms
-      end do
-    end do
+    enddo
+    enddo
     !$acc end parallel loop
 
   case(2)
     ! jlm deformation scheme using 3D uc, vc, wc and omega (1st rough scheme)
     !$acc parallel loop collapse(2) copyin(hdiff,uc,vc,wc,ps,dpsldt) copyout(t_kh(1:ifull,1:kl)) &
     !$acc   present(ie,iw,in,is)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)
+    do k = 1,kl
+    do iq = 1,ifull
         hdif = dt*hdiff(k)/ds ! N.B.  hdiff(k)=khdif*.1
         cc = (uc(ie(iq),k)-uc(iw(iq),k))**2 + (uc(in(iq),k)-uc(is(iq),k))**2 + &
              (vc(ie(iq),k)-vc(iw(iq),k))**2 + (vc(in(iq),k)-vc(is(iq),k))**2 + &
@@ -254,7 +257,7 @@ select case(nhorjlm)
         ! approx 1 Pa/s = .1 m/s     
         ! N.B. using double grid length
         t_kh(iq,k)= .5*sqrt(cc)*hdif*ps(iq) ! this one without em in D terms
-      end do
+    enddo
     enddo
 
   case(3)
@@ -262,8 +265,8 @@ select case(nhorjlm)
     call boundsuv(uav,vav,allvec=.true.)
     !$acc parallel loop collapse(2) copyin(hdiff,uav,vav,em,emi,tke,eps) copyout(t_kh(1:ifull,1:kl)) &
     !$acc   present(ieu,iwu,inu,isu,iev,iwv,inv,isv)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)
+    do k = 1,kl
+    do iq = 1,ifull
         hdif = dt*hdiff(k) ! N.B.  hdiff(k)=khdif*.1
         dudx = 0.5*(uav(ieu(iq),k)-uav(iwu(iq),k))*em(iq)/ds
         dudy = 0.5*(uav(inu(iq),k)-uav(isu(iq),k))*em(iq)/ds
@@ -272,8 +275,8 @@ select case(nhorjlm)
         r1 = (dudx-dvdy)**2+(dvdx+dudy)**2
         t_kh(iq,k) = sqrt(r1)*hdif*emi(iq)
         t_kh(iq,k)=max( t_kh(iq,k), tke(iq,k)**2/eps(iq,k)*dt*cm0*emi(iq) )
-      end do
-    end do
+    enddo
+    enddo
     !$acc end parallel loop      
 
   case DEFAULT
@@ -305,7 +308,8 @@ call boundsuv(xfact,yfact,stag=-9) ! MJT - can use stag=-9 option that will
 ! momentum (disabled by default)
 if ( nhorps==0 .or. nhorps==-2 ) then ! for nhorps=-1,-3,-4 don't diffuse u,v
   do k = 1,kl
-    do concurrent (iq = 1:ifull)
+!mpch - add omp
+    do iq = 1,ifull
       base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                     +yfact(iq,k)+yfact(isv(iq),k)  
       ucc = ( emi(iq)*uc(iq,k) +              &
@@ -328,8 +332,8 @@ if ( nhorps==0 .or. nhorps==-2 ) then ! for nhorps=-1,-3,-4 don't diffuse u,v
             / base
       u(iq,k) = ax(iq)*ucc + ay(iq)*vcc + az(iq)*wcc
       v(iq,k) = bx(iq)*ucc + by(iq)*vcc + bz(iq)*wcc
-    end do
-  end do
+    enddo
+  enddo
 end if   ! nhorps==0 .or. nhorps==-2
 
 if ( diag .and. mydiag ) then
@@ -354,7 +358,7 @@ if ( nhorps==0 .or. nhorps==-1 .or. nhorps==-4 .or. nhorps==-6 ) then
   call bounds(work(:,:,1:2))
   !$acc parallel loop collapse(2) copyin(ptemp,emi,xfact,yfact,work(:,:,1:2)) copyout(t,qg)
   do k = 1,kl
-    do concurrent (iq = 1:ifull)
+  do iq = 1,ifull
       base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                     +yfact(iq,k)+yfact(isv(iq),k)  
       t(iq,k) = ( emi(iq)*work(iq,k,1) +              &
@@ -370,8 +374,8 @@ if ( nhorps==0 .or. nhorps==-1 .or. nhorps==-4 .or. nhorps==-6 ) then
                    yfact(iq,k)*work(in(iq),k,2) +       &
                    yfact(isv(iq),k)*work(is(iq),k,2) )  &
                  / base
-    end do
-  end do
+  enddo
+  enddo
   !$acc end parallel loop
 
 else if ( nhorps==-5 ) then  
@@ -380,7 +384,8 @@ else if ( nhorps==-5 ) then
   end do
   call bounds(work(:,:,1))
   do k = 1,kl
-    do concurrent (iq = 1:ifull)
+!mpch - add omp
+  do iq = 1,ifull
       base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                     +yfact(iq,k)+yfact(isv(iq),k)  
       t(iq,k) = ( emi(iq)*work(iq,k,1) +              &
@@ -390,14 +395,15 @@ else if ( nhorps==-5 ) then
                   yfact(isv(iq),k)*work(is(iq),k,1) ) &
                 / base
       t(iq,k) = ptemp(iq)*t(iq,k)
-    end do
-  end do
+  enddo
+  enddo
 
 else if ( nhorps==-3 ) then  
   work(1:ifull,1:kl,1) = qg(1:ifull,1:kl)
   call bounds(work(:,:,1))
   do k = 1,kl      
-    do concurrent (iq = 1:ifull)
+!mpch - add omp
+  do iq = 1,ifull
       base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                     +yfact(iq,k)+yfact(isv(iq),k)  
       qg(iq,k) = ( emi(iq)*work(iq,k,1) +               &
@@ -406,8 +412,8 @@ else if ( nhorps==-3 ) then
                    yfact(iq,k)*work(in(iq),k,1) +       &
                    yfact(isv(iq),k)*work(is(iq),k,1) )  &
                  / base
-    end do
-  end do
+  enddo
+  enddo
 end if
 
 ! cloud microphysics (disabled by default) 
@@ -417,7 +423,8 @@ if ( nhorps==-4 .and. ldr/=0 ) then
   work(1:ifull,1:kl,3) = stratcloud(1:ifull,1:kl)
   call bounds(work(:,:,1:3))
   do k = 1,kl
-    do concurrent (iq = 1:ifull)
+!mpch - add omp
+  do iq = 1,ifull
       base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                       +yfact(iq,k)+yfact(isv(iq),k)  
       qlg(iq,k) = ( emi(iq)*work(iq,k,1) +               &
@@ -438,8 +445,8 @@ if ( nhorps==-4 .and. ldr/=0 ) then
                            yfact(iq,k)*work(in(iq),k,3) +       &
                            yfact(isv(iq),k)*work(is(iq),k,3) )  &
                          / base
-    end do
-  end do
+  enddo
+  enddo
 end if       ! (ldr/=0.and.nhorps==-4)
 
 ! apply horizontal diffusion to TKE and EPS terms (disabled by default)
@@ -448,7 +455,8 @@ if ( (nhorps==0.or.nhorps==-1.or.nhorps==-4) .and. nvmix==6 ) then
   work(1:ifull,1:kl,2) = eps(1:ifull,1:kl)
   call bounds(work(:,:,1:2))
   do k = 1,kl
-    do concurrent (iq = 1:ifull)
+!mpch - add omp
+  do iq = 1,ifull
       base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                     +yfact(iq,k)+yfact(isv(iq),k)  
       tke(iq,k) = ( emi(iq)*work(iq,k,1) +              &
@@ -463,8 +471,8 @@ if ( (nhorps==0.or.nhorps==-1.or.nhorps==-4) .and. nvmix==6 ) then
                     yfact(iq,k)*work(in(iq),k,2) +       &
                     yfact(isv(iq),k)*work(is(iq),k,2) )  &
                   / base
-    end do
-  end do
+  enddo
+  enddo
 end if   ! (nvmix==6)
 
 ! prgnostic aerosols (disabled by default)
@@ -475,8 +483,9 @@ if ( nhorps==-4 .and. abs(iaero)>=2 ) then
     work(1:ifull,1:kl,1:nt) = xtg(1:ifull,1:kl,nstart:nend)
     call bounds(work(:,:,1:nt))
     do ntr = 1,nt
-      do k = 1,kl
-        do concurrent (iq = 1:ifull)
+    do k = 1,kl
+!mpch - add omp
+    do iq = 1,ifull
           base = emi(iq)+xfact(iq,k)+xfact(iwu(iq),k)  &
                         +yfact(iq,k)+yfact(isv(iq),k)  
           xtg(iq,k,nstart+ntr-1) = ( emi(iq)*work(iq,k,nt) +               &
@@ -485,9 +494,9 @@ if ( nhorps==-4 .and. abs(iaero)>=2 ) then
                                      yfact(iq,k)*work(in(iq),k,nt) +       &
                                      yfact(isv(iq),k)*work(is(iq),k,nt) )  &
                                    / base
-        end do
-      end do
-    end do
+    enddo
+    enddo
+    enddo
   end do
 end if  ! (nhorps==-4.and.abs(iaero)>=2)  
 
