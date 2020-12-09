@@ -1,0 +1,24 @@
+[submodule "src/terread"]
+	path = src/terread
+	url = https://bitbucket.csiro.au/scm/ccam/terread.git
+[submodule "src/igbpveg"]
+	path = src/igbpveg
+	url = https://bitbucket.csiro.au/scm/ccam/igbpveg.git
+[submodule "src/sibveg"]
+	path = src/sibveg
+	url = https://bitbucket.csiro.au/scm/ccam/sibveg.git
+[submodule "src/ocnbath"]
+	path = src/ocnbath
+	url = https://bitbucket.csiro.au/scm/ccam/ocnbath.git
+[submodule "src/casafield"]
+	path = src/casafield
+	url = https://bitbucket.csiro.au/scm/ccam/casafield.git
+[submodule "src/cdfvidar"]
+	path = src/cdfvidar
+	url = https://bitbucket.csiro.au/scm/ccam/cdfvidar.git
+[submodule "src/aeroemiss"]
+	path = src/aeroemiss
+	url = https://bitbucket.csiro.au/scm/ccam/aeroemiss.git
+[submodule "src/pcc2hist"]
+	path = src/pcc2hist
+	url = https://bitbucket.csiro.au/scm/ccam/pcc2hist.git
