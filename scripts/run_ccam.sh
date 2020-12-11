@@ -1,9 +1,11 @@
 #!/bin/bash
-#SBATCH --job-name=ccam
-#SBATCH --mem=96gb
-#SBATCH --ntasks-per-node=50
-#SBATCH --cores-per-socket=10
-#SBATCH --time=24:00:00
+#rj queue=test
+#rj name=ccam_n96
+##rj mem=96gb
+#rj io=1
+#rj knl=1
+#rj taskspernode=64
+#rj runtime=2
 
 ###############################################################
 # This is the CCAM run script
@@ -12,15 +14,18 @@
 ###############################################################
 # MODULES
 
-module load mpt            # MPI
-module load netcdf/4.3.3.1 # NetCDF
-module load python/3.5.0   # Python
+module use /p9/dug/teamhpc/tests_for_candidate/markc/modulefiles
+module load openmpi/4.0.5-hpcx-icc # MPI and Intel compilers
+module load hdf5/1.10.7 netcdf/4.7.4 # NetCDF
+module load python/3.7.3             # Python
+
+ulimit -s unlimted
 
 ###############################################################
 # Specify parameters
 
-hdir=$HOME/ccaminstall/scripts/run_ccam      # script directory
-wdir=$hdir/wdir                              # working directory
+hdir=/p9/dug/teamhpc/sw/CCAMproject/scripts  # script directory
+wdir=/p9/dug/teamhpc/sw/CCAMproject/work     # working directory
 machinetype=0                                # machine type (0=mpirun, 1=srun)
 nproc=$SLURM_NTASKS                          # number of processors
 nnode=$SLURM_NTASKS_PER_NODE                 # number of processors per node
@@ -32,9 +37,9 @@ gridsize=96                                  # cubic grid size (e.g., 48, 72, 96
 iys=2000                                     # start year
 ims=1                                        # start month
 iye=2000                                     # end year
-ime=12                                       # end month
+ime=1                                        # end month
 leap=1                                       # use leap days (0=off, 1=on)
-ncountmax=12                                 # number of months before resubmit
+ncountmax=2                                  # number of months before resubmit
 
 name=ccam_${gridres}km                       # run name
 if [[ $gridres = "-999." ]]; then
@@ -42,16 +47,18 @@ if [[ $gridres = "-999." ]]; then
   name=`echo $name | sed "s/$gridres/$gridtxt"/g`
 fi
 
-ncout=2                                      # standard output format (0=none, 1=CCAM, 2=CORDEX, 3=CTM-tar, 4=Nearest, 5=CTM-raw, 6=CORDEX-surface)
-nctar=1                                      # TAR output files in OUTPUT directory (0=off, 1=on, 2=delete)
-ktc=360                                      # standard output period (mins)
+ncout=0                                      # standard output format (0=none, 1=CCAM, 2=CORDEX, 3=CTM-tar, 4=Nearest, 5=CTM-raw, 6=CORDEX-surface)
+nctar=0                                      # TAR output files in OUTPUT directory (0=off, 1=on, 2=delete)
+ktc=1440                                     # standard output period (mins)
+#ktc=360                                     # standard output period (mins)
 minlat=-999.                                 # output min latitude (degrees) (-9999.=automatic)
 maxlat=-999.                                 # output max latitude (degrees) (-999.=automatic)
 minlon=-999.                                 # output min longitude (degrees) (-999.=automatic)
 maxlon=-999.                                 # output max longitude (degrees) (-999.=automatic)
 reqres=-999.                                 # required output resolution (degrees) (-999.=automatic)
 outlevmode=0                                 # output mode for levels (0=pressure, 1=meters)
-plevs="1000, 850, 700, 500, 300"             # output pressure levels (hPa) for outlevmode=0
+#plevs="1000, 850, 700, 500, 300"             # output pressure levels (hPa) for outlevmode=0
+plevs="1000, 700, 300"             # output pressure levels (hPa) for outlevmode=0
 mlevs="10, 20, 40, 80, 140, 200"             # output height levels (m) for outlevmode=1
 dlevs="5, 10, 50, 100, 500, 1000, 5000"      # ocean depth levels (m)
 ncsurf=0                                     # high-freq output (0=none, 1=lat/lon, 2=raw)
@@ -81,32 +88,32 @@ userlaifile=none                             # User specified LAI map (none for 
 # Host atmosphere for dmode=0, dmode=2 or dmode=3
 # and soil data options
 
-bcdom=ccam_eraint_                           # host file prefix for dmode=0, dmode=2 or dmode=3
-bcdir=$HOME/ccaminstall/erai                 # host atmospheric data (dmode=0, dmode=2 or dmode=3)
-bcsoil=0                                     # use climatology for initial soil moisture (0=constant, 1=climatology, 2=recycle)
-bcsoilfile=none                              # soil data for recycling with bcsoil=2
+bcdom=ccam_eraint_                                   # host file prefix for dmode=0, dmode=2 or dmode=3
+bcdir=/p9/dug/teamhpc/sw/CCAMproject/input_data/erai # host atmospheric data (dmode=0, dmode=2 or dmode=3)
+bcsoil=0                                             # use climatology for initial soil moisture (0=constant, 1=climatology, 2=recycle)
+bcsoilfile=none                                      # soil data for recycling with bcsoil=2
 
 ###############################################################
 # Sea Surface Temperature for dmode=1
 
-sstfile=ACCESS1-0_RCP45_bcvc_osc_ots_santop96_18_0.0_0.0_1.0.nc # sst file for dmode=1
-sstinit=$bcdir/$bcdom$iys$ims.nc                                # initial conditions file for dmode=1
-sstdir=$HOME/ccaminstall/gcmsst                                 # SST data (dmode=1)
+sstfile=NA # sst file for dmode=1
+sstinit=NA                                # initial conditions file for dmode=1
+sstdir=NA                                 # SST data (dmode=1)
 
 ###############################################################
 # Specify directories and executables
 
-insdir=$HOME/ccaminstall                     # install directory
-excdir=$insdir/scripts/run_ccam              # location of run_ccam.py
-stdat=$insdir/ccamdata                       # eigen and radiation datafiles
-terread=$insdir/src/bin/terread
-igbpveg=$insdir/src/bin/igbpveg
-sibveg=$insdir/src/bin/sibveg
-ocnbath=$insdir/src/bin/ocnbath
-casafield=$insdir/src/bin/casafield
-aeroemiss=$insdir/src/bin/aeroemiss
-model=$insdir/src/bin/globpea
-pcc2hist=$insdir/src/bin/pcc2hist
+insdir=/p9/dug/teamhpc/sw/CCAMproject        # install directory
+excdir=$insdir/scripts                       # location of run_ccam.py
+stdat=$insdir/input_data/ccamdata            # eigen and radiation datafiles
+terread=$insdir/bin/terread
+igbpveg=$insdir/bin/igbpveg
+sibveg=$insdir/bin/sibveg
+ocnbath=$insdir/bin/ocnbath
+casafield=$insdir/bin/casafield
+aeroemiss=$insdir/bin/aeroemiss
+model=$insdir/bin/globpea
+pcc2hist=$insdir/bin/pcc2hist
 
 ###############################################################
 
@@ -129,7 +136,7 @@ python $excdir/run_ccam.py --name $name --nproc $nproc --nnode $nnode --midlon "
 if [ "`cat $hdir/restart.qm`" == "True" ]; then
   echo 'Restarting script'
   rm $hdir/restart.qm
-  sbatch $hdir/run_ccam.sh
+  rjs $hdir/run_ccam.sh
 elif [ "`cat $hdir/restart.qm`" == "Complete" ]; then
   echo 'CCAM simulation completed normally'
   rm $hdir/restart.qm

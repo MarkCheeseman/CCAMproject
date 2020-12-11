@@ -361,9 +361,9 @@ def run_land():
                 d['change_landuse'] = dict2str('{stdat}/{cmip}/{rcp}/multiple-states_input4MIPs_landState_ScenarioMIP_UofMD-{rcplabel}-{rcp}-2-1-f_gn_2015-2100.nc')
         write2file('igbpveg.nml', igbpveg_template(), mode='w+')
         if d['machinetype'] == 1:
-            run_cmdline('env OMP_NUM_THREADS={nnode} OMP_WAIT_POLICY="PASSIVE" KMP_STACKSIZE=1024m srun -n 1 -c {nnode} {igbpveg} -s 5000 < igbpveg.nml > igbpveg.log')
+            run_cmdline('env OMP_NUM_THREADS=16 OMP_WAIT_POLICY="PASSIVE" OMP_STACKSIZE=1g srun -n 1 -c 16 {igbpveg} -s 5000 < igbpveg.nml > igbpveg.log')
         else:
-            run_cmdline('env OMP_NUM_THREADS={nnode} OMP_WAIT_POLICY="PASSIVE" KMP_STACKSIZE=1024m {igbpveg} -s 5000 < igbpveg.nml > igbpveg.log')
+            run_cmdline('env OMP_NUM_THREADS=16 OMP_WAIT_POLICY="PASSIVE" OMP_STACKSIZE=1g {igbpveg} -s 5000 < igbpveg.nml > igbpveg.log')
         xtest = (subprocess.getoutput('grep -o "igbpveg completed successfully" igbpveg.log') == "igbpveg completed successfully")
         if xtest is False:
             raise ValueError(dict2str("An error occured while running igbpveg.  Check igbpveg.log for details"))
@@ -375,9 +375,9 @@ def run_ocean():
     print("Processing bathymetry data")
     write2file('ocnbath.nml', ocnbath_template(), mode='w+')
     if d['machinetype'] == 1:
-        run_cmdline('env OMP_NUM_THREADS={nnode} OMP_WAIT_POLICY="PASSIVE" KMP_STACKSIZE=1024m srun -n 1 {ocnbath} -s 5000 < ocnbath.nml > ocnbath.log')
+        run_cmdline('env OMP_NUM_THREADS=16 OMP_WAIT_POLICY="PASSIVE" OMP_STACKSIZE=1g srun -n 1 {ocnbath} -s 5000 < ocnbath.nml > ocnbath.log')
     else:
-        run_cmdline('env OMP_NUM_THREADS={nnode} OMP_WAIT_POLICY="PASSIVE" KMP_STACKSIZE=1024m {ocnbath} -s 5000 < ocnbath.nml > ocnbath.log')
+        run_cmdline('env OMP_NUM_THREADS=16 OMP_WAIT_POLICY="PASSIVE" OMP_STACKSIZE=1g {ocnbath} -s 5000 < ocnbath.nml > ocnbath.log')
     xtest = (subprocess.getoutput('grep -o "ocnbath completed successfully" ocnbath.log')
              == "ocnbath completed successfully")
     if xtest is False:
@@ -388,9 +388,9 @@ def run_carbon():
 
     print("Processing CASA data")
     if d['machinetype'] == 1:
-        run_cmdline('srun -n 1 {casafield} -t topout{domain} -i {insdir}/vegin/casaNP_gridinfo_1dx1d.nc -o casa{domain} > casafield.log')
+        run_cmdline('srun -n 1 {casafield} -t topout{domain} -i {insdir}/input_data/vegin/casaNP_gridinfo_1dx1d.nc -o casa{domain} > casafield.log')
     else:
-        run_cmdline('{casafield} -t topout{domain} -i {insdir}/vegin/casaNP_gridinfo_1dx1d.nc -o casa{domain} > casafield.log')
+        run_cmdline('{casafield} -t topout{domain} -i {insdir}/input_data/vegin/casaNP_gridinfo_1dx1d.nc -o casa{domain} > casafield.log')
     xtest = (subprocess.getoutput('grep -o "casafield completed successfully" casafield.log')
              == "casafield completed successfully")
     if xtest is False:
@@ -905,9 +905,9 @@ def create_sulffile_file():
 
     # Create new sulffile:
     if d['machinetype'] == 1:
-        run_cmdline('env OMP_NUM_THREADS={nnode} OMP_WAIT_POLICY="PASSIVE" KMP_STACKSIZE=1024m srun -n 1 {aeroemiss} -o {sulffile} < aeroemiss.nml > aero.log || exit')
+        run_cmdline('env OMP_NUM_THREADS=16 OMP_WAIT_POLICY="PASSIVE" OMP_STACKSIZE=1g srun -n 1 {aeroemiss} -o {sulffile} < aeroemiss.nml > aero.log || exit')
     else:
-        run_cmdline('env OMP_NUM_THREADS={nnode} OMP_WAIT_POLICY="PASSIVE" KMP_STACKSIZE=1024m {aeroemiss} -o {sulffile} < aeroemiss.nml > aero.log || exit')
+        run_cmdline('env OMP_NUM_THREADS=16 OMP_WAIT_POLICY="PASSIVE" OMP_STACKSIZE=1g {aeroemiss} -o {sulffile} < aeroemiss.nml > aero.log || exit')
 
     xtest = (subprocess.getoutput('grep -o "aeroemiss completed successfully" aero.log')
              == "aeroemiss completed successfully")
@@ -1042,7 +1042,8 @@ def run_model():
     if d['machinetype'] == 1:
         run_cmdline('srun -n {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
     else:
-        run_cmdline('mpirun -np {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
+        run_cmdline('OMP_NUM_THREADS=1 OMP_PLACES=cores OMP_PROC_BIND=close mpirun -np {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
+        # run_cmdline('OMP_NUM_THREADS=2 OMP_PLACES=cores OMP_PROC_BIND=close mpirun -np {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
 
     prfile = dict2str('prnew.{kdates}.{name}')
     xtest = (subprocess.getoutput('grep -o "globpea completed successfully" '+prfile)
@@ -1254,7 +1255,7 @@ def top_template():
      dosrtm=f do1km=t do250=t netout=t topfilt=t    
      filepath10km="{insdir}/vegin"
      filepath1km="{insdir}/vegin"
-     filepath250m="{insdir}/vegin"
+     filepath250m="{insdir}/input_data/vegin"
      filepathsrtm="{insdir}/vegin"
     &end
     """
@@ -1269,11 +1270,11 @@ def igbpveg_template():
      topofile="topout{domain}"
      newtopofile="topsib{domain}"
      landtypeout="veg{domain}"
-     veginput="{insdir}/vegin/gigbp2_0ll.img"
-     soilinput="{insdir}/vegin/usda4.img"
-     laiinput="{insdir}/vegin"
-     albvisinput="{insdir}/vegin/salbvis223.img"
-     albnirinput="{insdir}/vegin/salbnir223.img"
+     veginput="{insdir}/input_data/vegin/gigbp2_0ll.img"
+     soilinput="{insdir}/input_data/vegin/usda4.img"
+     laiinput="{insdir}/input_data/vegin"
+     albvisinput="{insdir}/input_data/vegin/salbvis223.img"
+     albnirinput="{insdir}/input_data/vegin/salbnir223.img"
      change_landuse="{change_landuse}"
      fastigbp=t
      igbplsmask=t
@@ -1299,7 +1300,7 @@ def sibveg_template():
      topofile="topout{domain}"
      newtopofile="topsib{domain}"
      landtypeout="veg{domain}"
-     datapath="{insdir}/vegin"
+     datapath="{insdir}/input_data/vegin"
      fastsib=t
      siblsmask=f
      ozlaipatch=f
@@ -1317,8 +1318,8 @@ def ocnbath_template():
     &ocnnml
      topofile="topout{domain}"
      bathout="bath{domain}"
-     bathdatafile="{insdir}/vegin/etopo1_ice_c.flt"
-     riverdatapath="{insdir}/vegin"
+     bathdatafile="{insdir}/input_data/vegin/etopo1_ice_c.flt"
+     riverdatapath="{insdir}/input_data/vegin"
      fastocn=t
      bathfilt=t
      binlimit=4
