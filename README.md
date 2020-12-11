@@ -11,3 +11,11 @@ cd src
 make buildall
 ```
 
+You may wish to do a clean and if you want a fresh rebuild
+
+```bash
+cd src
+make -j9 cleanall
+```
+
+Don't worry about the error messages about not finding any core files.
