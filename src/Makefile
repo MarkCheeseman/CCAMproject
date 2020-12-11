@@ -4,8 +4,8 @@ NUM_TASKS=4
 
 # Intel compiler options
 FC=ifort
-FCFLAGS="-Ofast -xMIC-AVX512 -I$(NETCDF)/include"
-FC_OMP_FLAGS="-Ofast -qopenmp -xMIC-AVX512 -I$(NETCDF)/include"
+FCFLAGS="-Ofast -xMIC-AVX512 -I$(NETCDF)/include -ftz -no-prec-sqrt -align array64byte -assume buffered_io"
+FC_OMP_FLAGS="-qopenmp -Ofast -xMIC-AVX512 -I$(NETCDF)/include -ftz -no-prec-sqrt -align array64byte -assume buffered_io"
 LIBS="-L$(NETCDF)/lib -lnetcdf -lnetcdff"
 CPP=-fpp
 
@@ -40,19 +40,28 @@ buildall: build_aeroemiss build_casafield build_cdfvidar build_igbpveg build_ocn
 
 build_aeroemiss:
 	cd aeroemiss && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FC_OMP_FLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp aeroemiss/aeroemiss ../bin/
 build_casafield:
 	cd casafield && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FCFLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp casafield/casafield ../bin/
 build_cdfvidar:
 	cd cdfvidar && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} FFLAGS=${FC_OMP_FLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp cdfvidar/cdfvidar ../bin/
 build_igbpveg:
 	cd igbpveg && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FC_OMP_FLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp igbpveg/igbpveg ../bin/
 build_ocnbath:
 	cd ocnbath && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FC_OMP_FLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp ocnbath/ocnbath ../bin/
 build_pcc2hist:
 	cd pcc2hist && make -j$(NUM_TASKS) CUSTOM=yes FFLAGS=${FC_OMP_FLAGS} LIBS=${LIBS} PPFLAG90=${CPP} 
+	cp pcc2hist/pcc2hist ../bin/
 build_sibveg:
 	cd sibveg && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FCFLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp sibveg/sibveg ../bin/
 build_terread:
 	cd terread && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FCFLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
+	cp terread/terread ../bin/
 build_ccam:
-	cd ccam && make XEONPHI=yes OMP=yes NETCDF_ROOT=${NETCDF} 
+	cd ccam && make -j8  XEONPHI=yes OMP=yes NOMPI3=yes NETCDF_ROOT=${NETCDF} 
+#	cp ccam/globpea ../bin/
