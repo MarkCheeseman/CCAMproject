@@ -87,11 +87,11 @@ call bounds(s,nrows=2)
 !======================== start of intsch=1 section ====================
 if ( intsch==1 ) then
   !$acc parallel loop collapse(5) present(sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
-          do concurrent (i = 1:ipan)
+  do nn = 1,3
+    do k = 1,kl
+      do n = 1,npan
+        do j = 1,jpan
+          do i = 1,ipan
             iq = i + (j-1)*ipan + (n-1)*ipan*jpan
             sx(i,j,n,k,nn) = s(iq,k,nn)
           end do
@@ -101,10 +101,10 @@ if ( intsch==1 ) then
   end do
   !$acc end parallel loop
   !$acc parallel loop collapse(3) present(s,sx)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
+  do nn = 1,3
+    do k = 1,kl
+      do n = 1,npan
+        do j = 1,jpan
           iq = 1+(j-1)*ipan+(n-1)*ipan*jpan
           sx(0,j,n,k,nn)      = s(iw(iq),k,nn)
           sx(-1,j,n,k,nn)     = s(iww(iq),k,nn)
@@ -112,7 +112,7 @@ if ( intsch==1 ) then
           sx(ipan+1,j,n,k,nn) = s(ie(iq),k,nn)
           sx(ipan+2,j,n,k,nn) = s(iee(iq),k,nn)
         end do            ! j loop
-        do concurrent (i = 1:ipan)
+        do i = 1,ipan
           iq = i+(n-1)*ipan*jpan
           sx(i,0,n,k,nn)      = s(is(iq),k,nn)
           sx(i,-1,n,k,nn)     = s(iss(iq),k,nn)
@@ -177,9 +177,9 @@ if ( intsch==1 ) then
   call intssync_send(3)
   
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s) 
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)    ! non Berm-Stan option
+  do nn = 1,3
+    do k = 1,kl
+      do iq = 1,ifull    ! non Berm-Stan option
         idel = int(xg(iq,k))
         xxg = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -216,11 +216,11 @@ else     ! if(intsch==1)then
 !======================== start of intsch=2 section ====================
 
   !$acc parallel loop collapse(5) present(sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
-          do concurrent (i = 1:ipan)
+  do nn = 1,3
+    do k = 1,kl
+      do n = 1,npan
+        do j = 1,jpan
+          do i = 1,ipan
             iq = i + (j-1)*ipan + (n-1)*ipan*jpan
             sx(i,j,n,k,nn) = s(iq,k,nn)
           end do
@@ -230,10 +230,10 @@ else     ! if(intsch==1)then
   end do
   !$acc end parallel loop
   !$acc parallel loop collapse(3) present(s,sx)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
+  do nn = 1,3
+    do k = 1,kl
+      do n = 1,npan
+        do j = 1,jpan
           iq = 1+(j-1)*ipan+(n-1)*ipan*jpan
           sx(0,j,n,k,nn)      = s(iw(iq),k,nn)
           sx(-1,j,n,k,nn)     = s(iww(iq),k,nn)
@@ -241,7 +241,7 @@ else     ! if(intsch==1)then
           sx(ipan+1,j,n,k,nn) = s(ie(iq),k,nn)
           sx(ipan+2,j,n,k,nn) = s(iee(iq),k,nn)
         end do            ! j loop
-        do concurrent (i = 1:ipan)
+        do i = 1,ipan
           iq = i+(n-1)*ipan*jpan
           sx(i,0,n,k,nn)      = s(is(iq),k,nn)
           sx(i,-1,n,k,nn)     = s(iss(iq),k,nn)
@@ -305,9 +305,9 @@ else     ! if(intsch==1)then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s) 
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)    ! non Berm-Stan option
+  do nn = 1,3
+    do k = 1,kl
+      do iq = 1,ifull    ! non Berm-Stan option
         idel = int(xg(iq,k))
         xxg = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -401,9 +401,9 @@ if ( intsch==1 ) then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s) 
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)    ! non Berm-Stan option
+  do nn = 1,3
+    do k = 1,kl
+      do iq = 1,ifull    ! non Berm-Stan option
         idel = int(xg(iq,k))
         xxg = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -477,9 +477,9 @@ else     ! if(intsch==1)then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s) 
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:kl)
-      do concurrent (iq = 1:ifull)    ! non Berm-Stan option
+  do nn = 1,3
+    do k = 1,kl
+      do iq = 1,ifull    ! non Berm-Stan option
         ! Convert face index from 0:npanels to array indices
         idel = int(xg(iq,k))
         xxg = xg(iq,k) - real(idel)
@@ -596,8 +596,8 @@ alf           = (1._8-real(schmidt,8)**2)/(1._8+real(schmidt,8)**2)
 alfonsch      = 2._8*real(schmidt,8)/(1._8+real(schmidt,8)**2)  ! same but bit more accurate
 
 !$acc parallel loop collapse(2) copyin(x3d,y3d,z3d,xx4,yy4) present(xg,yg,nface)
-do concurrent (k = 1:kl)
-  do concurrent (iq = 1:ifull)    
+do k = 1,kl
+  do iq = 1,ifull    
     den  = 1._8 - alf*z3d(iq,k)
     xstr = real(x3d(iq,k)*(alfonsch/den))
     ystr = real(y3d(iq,k)*(alfonsch/den))

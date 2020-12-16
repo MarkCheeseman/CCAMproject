@@ -1042,7 +1042,7 @@ def run_model():
     if d['machinetype'] == 1:
         run_cmdline('srun -n {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
     else:
-        run_cmdline('OMP_NUM_THREADS=1 OMP_PLACES=cores OMP_PROC_BIND=close mpirun -np {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
+        run_cmdline('OMP_NUM_THREADS=2 OMP_PLACES=cores OMP_PROC_BIND=close OMP_STACKSIZE=1G OMP_MAX_ACTIVE_LEVELS=3  mpirun -np {nproc} --bind-to core -map-by node --mca pml ucx -mca coll_hcoll_enable 1 -mca coll_hcoll_np 0 {model} > prnew.{kdates}.{name} 2> err.{iyr}')
         # run_cmdline('OMP_NUM_THREADS=2 OMP_PLACES=cores OMP_PROC_BIND=close mpirun -np {nproc} {model} > prnew.{kdates}.{name} 2> err.{iyr}')
 
     prfile = dict2str('prnew.{kdates}.{name}')

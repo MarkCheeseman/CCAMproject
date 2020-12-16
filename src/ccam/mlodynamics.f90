@@ -1322,8 +1322,8 @@ real vec3x,vec3y,vec3z,vdot1,vdot2
 real(kind=8), dimension(ifull,size(cou,2)), intent(in) :: x3d,y3d,z3d
 
 !$acc parallel loop collapse(2) copyin(x3d,y3d,z3d,x,y,z) copy(cou,cov,cow)
-do concurrent (k = 1:wlev)
-  do concurrent (iq = 1:ifull)
+do k = 1,wlev
+  do iq = 1,ifull
     !         cross product n1xn2 into vec1
     vec1x = real(y3d(iq,k)*z(iq) - y(iq)*z3d(iq,k))
     vec1y = real(z3d(iq,k)*x(iq) - z(iq)*x3d(iq,k))
@@ -1379,7 +1379,7 @@ call START_LOG(watervadv_begin)
 dzdum = max(idzdum(:,:),1.E-10)
   
 ! reduce time step to ensure stability
-do concurrent (iq = 1:ifull)
+do iq = 1,ifull
   dtnew(iq)=dtin
   do ii = 1,wlev-1
     if ( wtr(iq,ii) ) then
@@ -1440,14 +1440,14 @@ real fl,fh,cc,rr
 !$acc update device(uu) async(asyncbuf)
 
 !$acc parallel loop collapse(2) present(delu,uu) async(asyncbuf)
-do concurrent (ii = 1:wlev-1)
-  do concurrent (iq = 1:ifull)
+do ii = 1,wlev-1
+  do iq = 1,ifull
     delu(iq,ii) = uu(iq,ii+1) - uu(iq,ii)
   end do
 end do
 !$acc end parallel loop
 !$acc parallel loop present(ff,delu) async(asyncbuf)
-do concurrent (iq = 1:ifull)
+do iq = 1,ifull
   ff(iq,0) = 0.
   ff(iq,wlev) = 0.
   delu(iq,0) = 0.
@@ -1457,8 +1457,8 @@ end do
 
 ! TVD part
 !$acc parallel loop collapse(2) present(ww,delu,uu,dzdum,depdum,dtnew,ff) async(asyncbuf)
-do concurrent (ii = 1:wlev-1)
-  do concurrent (iq = 1:ifull)
+do ii = 1,wlev-1
+  do iq = 1,ifull
     ! +ve ww is downwards to the ocean floor
     kp = nint(sign(1.,ww(iq,ii)))
     kx = ii+(1-kp)/2 !  k for ww +ve,  k+1 for ww -ve
@@ -1474,8 +1474,8 @@ do concurrent (ii = 1:wlev-1)
 end do
 !$acc end parallel loop
 !$acc parallel loop collapse(2) present(uu,dtnew,ff,ww) async(asyncbuf)
-do concurrent (ii = 1:wlev)
-  do concurrent (iq = 1:ifull)
+do ii = 1,wlev
+  do iq = 1,ifull
     if ( dzdum(iq,ii)>1.e-4 ) then  
       uu(iq,ii)=uu(iq,ii)+dtnew(iq)*(uu(iq,ii)*(ww(iq,ii)-ww(iq,ii-1))   &
                          -ff(iq,ii)+ff(iq,ii-1))/dzdum(iq,ii)
@@ -1485,7 +1485,7 @@ end do
 !$acc end parallel loop
 
 !$acc parallel loop present(uu,its,dtnew,ww,depdum,dzdum,ff,delu) async(asyncbuf)
-do concurrent (iq = 1:ifull)
+do iq = 1,ifull
   do i = 2,its(iq)
     do ii=1,wlev-1
       delu(iq,ii)=uu(iq,ii+1)-uu(iq,ii)
@@ -1573,8 +1573,8 @@ else
       write(6,*) "ERROR: unknown mlojacobi option ",mlojacobi
       stop
   end select  
-  do concurrent (ii = 1:wlev)
-    do concurrent (iq = 1:ifull)
+  do ii = 1,wlev
+    do iq = 1,ifull
       absu = 0.5*(alpha(iq,ii)+alpha(ie(iq),ii))*eeu(iq,ii)
       bbsu = 0.5*(beta(iq,ii) +beta(ie(iq),ii) )*eeu(iq,ii)
       absv = 0.5*(alpha(iq,ii)+alpha(in(iq),ii))*eev(iq,ii)
@@ -1900,9 +1900,9 @@ real, dimension(ifull,wlev,2), intent(out) :: drhodxu,drhodyu,drhodxv,drhodyv
 
 ! rhobar = int_0^sigma rho dsigma / sigma
 
-do concurrent (jj = 1:2)
-  do concurrent (ii = 1:wlev)
-    do concurrent (iq = 1:ifull)
+do jj = 1,2
+  do ii = 1,wlev
+    do iq = 1,ifull
       ! process staggered u locations  
       drhodxu(iq,ii,jj)=(rho(ie(iq),ii,jj)-rho(iq,ii,jj))*eeu(iq,ii)*emu(iq)/ds
       drhodyu(iq,ii,jj)=0.25*stwgt(iq,ii)*emu(iq)/ds*(rho(in(iq),ii,jj)-rho(is(iq),ii,jj) &
@@ -2061,8 +2061,8 @@ real, dimension(ifull+iextra), intent(in) :: niu,niv,spnet
 real(kind=8) odum,dumd,tdum
 
 !$acc parallel loop collapse(2) copy(dumc) copyin(niu,niv,spnet,emu,emv)
-do concurrent (n = 1:ntr)
-  do concurrent (iq = 1:ifull)
+do n = 1,ntr
+  do iq = 1,ifull
     dumd=dumc(iq,n)
     odum=0.5*dt*(niu(iwu(iq))*(dumc(iq,n)+dumc(iw(iq),n))    -abs(niu(iwu(iq)))*(dumc(iq,n)-dumc(iw(iq),n))    )*emu(iwu(iq))/ds
     if ( spnet(iw(iq))>1.e-10 ) then

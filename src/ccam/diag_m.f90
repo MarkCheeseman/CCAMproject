@@ -87,7 +87,7 @@ contains
             end if
          end if
          write(6,9) name,ktau,level,bias,fact
- 9       format(/1x,a4,' ktau =',i7,'  level =',i3,'  addon =',g8.2,'  has been mult by',1pe8.1)
+ 9       format(/1x,a4,' ktau =',i7,'  level =',i3,'  addon =',g9.2,'  has been mult by',1pe8.1)
          write(6,91) (j,j=j1,j2)
 91       format(4x,25i11)
          do i=i1,i2

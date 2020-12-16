@@ -4,8 +4,9 @@
 ##rj mem=96gb
 #rj io=1
 #rj knl=1
-#rj taskspernode=64
-#rj runtime=2
+#rj nodes=1
+#rj taskspernode=54
+#rj runtime=1.0
 
 ###############################################################
 # This is the CCAM run script
@@ -19,7 +20,7 @@ module load openmpi/4.0.5-hpcx-icc # MPI and Intel compilers
 module load hdf5/1.10.7 netcdf/4.7.4 # NetCDF
 module load python/3.7.3             # Python
 
-ulimit -s unlimted
+ulimit -s unlimited
 
 ###############################################################
 # Specify parameters

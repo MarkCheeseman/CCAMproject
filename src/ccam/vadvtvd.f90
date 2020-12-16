@@ -169,14 +169,14 @@ real, dimension(ifull,0:kl) :: delt, fluxh
 
 !     fluxh(k) is located at level k+.5
 !$acc parallel loop collapse(2) present(delt,tarr) async(asyncbuf)
-do concurrent (k = 1:kl-1)
-  do concurrent (iq = 1:ifull)
+do k = 1,kl-1
+  do iq = 1,ifull
     delt(iq,k) = tarr(iq,k+1) - tarr(iq,k)
   end do
 end do  
 !$acc end parallel loop
 !$acc parallel loop present(fluxh,delt,tarr) async(asyncbuf)
-do concurrent (iq = 1:ifull)
+do iq = 1,ifull
   fluxh(iq,0)  = 0.
   fluxh(iq,kl) = 0.
   delt(iq,kl)  = 0.     ! for T,u,v
@@ -186,8 +186,8 @@ end do
 !$acc end parallel loop
 
 !$acc parallel loop collapse(2) present(sdot,delt,tarr,ratha,rathb,fluxh,nvadh_pass) async(asyncbuf)
-do concurrent (k = 1:kl-1)  ! for fluxh at interior (k + 1/2)  half-levels
-  do concurrent (iq = 1:ifull)      
+do k = 1,kl-1  ! for fluxh at interior (k + 1/2)  half-levels
+  do iq = 1,ifull      
     kp = nint(sign(1.,sdot(iq,k+1)))
     kx = k + (1-kp)/2 !  k for sdot +ve,  k+1 for sdot -ve
     rat = delt(iq,k-kp)/(delt(iq,k)+sign(1.e-20,delt(iq,k)))
@@ -200,8 +200,8 @@ do concurrent (k = 1:kl-1)  ! for fluxh at interior (k + 1/2)  half-levels
 enddo      ! k loop
 !$acc end parallel loop
 !$acc parallel loop collapse(2) present(tarr,nvadh_pass,fluxh,sdot) async(asyncbuf)
-do concurrent (k = 1:kl)
-  do concurrent (iq = 1:ifull)
+do k = 1,kl
+  do iq = 1,ifull
     tarr(iq,k) = tarr(iq,k) + (fluxh(iq,k-1)-fluxh(iq,k) &
                              +tarr(iq,k)*(sdot(iq,k+1)-sdot(iq,k)))/real(nvadh_pass(iq))
   end do
@@ -209,7 +209,7 @@ end do
 !$acc end parallel loop
 
 !$acc parallel loop  present(tarr,sdot,nvadh_pass,nits,fluxh,delt,ratha,rathb) async(asyncbuf)
-do concurrent (iq = 1:ifull) 
+do iq = 1,ifull 
   do i = 2,nits(iq)
     do k = 1,kl-1
       delt(iq,k) = tarr(iq,k+1) - tarr(iq,k)

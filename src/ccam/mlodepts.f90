@@ -102,9 +102,9 @@ end do
 do ii = 1,3 ! 3 iterations of fill should be enough
   s_old(1:ifull,:,:) = s(1:ifull,:,:)
   call bounds(s_old)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (iq = 1:ifull)
+  do nn = 1,3
+    do k = 1,wlev
+      do iq = 1,ifull
         if ( s(iq,k,nn)<cxx ) then
           s_tot = 0.
           s_count = 0
@@ -145,11 +145,11 @@ call bounds(s,nrows=2)
 if ( intsch==1 ) then
 
   !$acc parallel loop collapse(5) present(sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
-          do concurrent (i = 1:ipan)
+  do nn = 1,3
+    do k = 1,wlev
+      do n = 1,npan
+        do j = 1,jpan
+          do i = 1,ipan
             iq = i + (j-1)*ipan + (n-1)*ipan*jpan
             sx(i,j,n,k,nn) = s(iq,k,nn)
           end do
@@ -159,10 +159,10 @@ if ( intsch==1 ) then
   end do
   !$acc end parallel loop
   !$acc parallel loop collapse(3) present(s,sx)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
+  do nn = 1,3
+    do k = 1,wlev
+      do n = 1,npan
+        do j = 1,jpan
           iq = 1+(j-1)*ipan+(n-1)*ipan*jpan
           sx(0,j,n,k,nn)      = s( iw(iq),k,nn)
           sx(-1,j,n,k,nn)     = s(iww(iq),k,nn)
@@ -170,7 +170,7 @@ if ( intsch==1 ) then
           sx(ipan+1,j,n,k,nn) = s( ie(iq),k,nn)
           sx(ipan+2,j,n,k,nn) = s(iee(iq),k,nn)
         end do
-        do concurrent (i = 1:ipan)
+        do i = 1,ipan
           iq = i+(n-1)*ipan*jpan
           sx(i,0,n,k,nn)      = s( is(iq),k,nn)
           sx(i,-1,n,k,nn)     = s(iss(iq),k,nn)
@@ -235,9 +235,9 @@ if ( intsch==1 ) then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (iq = 1:ifull)
+  do nn = 1,3
+    do k = 1,wlev
+      do iq = 1,ifull
         idel = int(xg(iq,k))
         xxg  = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -274,11 +274,11 @@ else     ! if(intsch==1)then
 !======================== start of intsch=2 section ====================
 
   !$acc parallel loop collapse(5) present(sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
-          do concurrent (i = 1:ipan)
+  do nn = 1,3
+    do k = 1,wlev
+      do n = 1,npan
+        do j = 1,jpan
+          do i = 1,ipan
             iq = i + (j-1)*ipan + (n-1)*ipan*jpan
             sx(i,j,n,k,nn) = s(iq,k,nn)
           end do
@@ -288,10 +288,10 @@ else     ! if(intsch==1)then
   end do
   !$acc end parallel loop
   !$acc parallel loop collapse(3) present(s,sx)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (n = 1:npan)
-        do concurrent (j = 1:jpan)
+  do nn = 1,3
+    do k = 1,wlev
+      do n = 1,npan
+        do j = 1,jpan
           iq = 1+(j-1)*ipan+(n-1)*ipan*jpan
           sx(0,j,n,k,nn)      = s( iw(iq),k,nn)
           sx(-1,j,n,k,nn)     = s(iww(iq),k,nn)
@@ -299,7 +299,7 @@ else     ! if(intsch==1)then
           sx(ipan+1,j,n,k,nn) = s( ie(iq),k,nn)
           sx(ipan+2,j,n,k,nn) = s(iee(iq),k,nn)
         end do            ! j loop
-        do concurrent (i = 1:ipan)
+        do i = 1,ipan
           iq = i+(n-1)*ipan*jpan
           sx(i,0,n,k,nn)      = s( is(iq),k,nn)
           sx(i,-1,n,k,nn)     = s(iss(iq),k,nn)
@@ -363,9 +363,9 @@ else     ! if(intsch==1)then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (iq = 1:ifull)
+  do nn = 1,3
+    do k = 1,wlev
+      do iq = 1,ifull
         idel = int(xg(iq,k))
         xxg = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -457,9 +457,9 @@ if ( intsch==1 ) then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (iq = 1:ifull)
+  do nn = 1,3
+    do k = 1,wlev
+      do iq = 1,ifull
         idel = int(xg(iq,k))
         xxg  = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -530,9 +530,9 @@ else     ! if(intsch==1)then
   call intssync_send(3)
 
   !$acc parallel loop collapse(3) present(xg,yg,nface,sx,s)
-  do concurrent (nn = 1:3)
-    do concurrent (k = 1:wlev)
-      do concurrent (iq = 1:ifull)
+  do nn = 1,3
+    do k = 1,wlev
+      do iq = 1,ifull
         idel = int(xg(iq,k))
         xxg = xg(iq,k) - real(idel)
         jdel = int(yg(iq,k))
@@ -625,8 +625,8 @@ alf = (1._8-schmidt**2)/(1._8+schmidt**2)
 alfonsch = 2._8*schmidt/(1._8+schmidt**2)
 
 !$acc parallel loop collapse(2) copyin(x3d,y3d,z3d,xx4,yy4) present(xg,yg,nface)
-do concurrent (ii = 1:wlev)
-  do concurrent (iq = 1:ifull)
+do ii = 1,wlev
+  do iq = 1,ifull
 
     !     if necessary, transform (x3d, y3d, z3d) to equivalent
     !     coordinates (xstr, ystr, zstr) on regular gnomonic panels

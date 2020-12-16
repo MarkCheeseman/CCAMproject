@@ -22,8 +22,6 @@ VTHRESH =
 MPISPECIAL =
 ifeq ($(XEONPHI),yes)
 FHOST = -Ofast -xMIC-AVX512 -fast-transcendentals -assume buffered_io -align array64byte 
-IPFLAG = -ip
-IPOFLAG = -ipo
 endif
 ifeq ($(BROADWELL),yes)
 FHOST = -O3 -xCORE-AVX2
@@ -45,7 +43,7 @@ else
 OMPFLAG =
 endif
 # Default intel compiler options
-FFLAGS = $(FHOST) -ftz -fp-model precise -no-fma -traceback $(MPIFLAG) $(NCFLAG) $(OMPFLAG)
+FFLAGS = $(FHOST) -ftz -no-fma $(MPIFLAG) $(NCFLAG) $(OMPFLAG)
 LIBS = -L $(NETCDF_ROOT)/lib -lnetcdf
 ifneq ($(NCCLIB),yes)
 LIBS += -lnetcdff

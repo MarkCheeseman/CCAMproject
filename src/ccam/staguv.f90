@@ -78,7 +78,7 @@ vin(1:ifull,1:kx) = v(1:ifull,1:kx)
 if (abs(nstag)<3) then
   call boundsuv(uin,vin,stag=2)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)
+    do iq = 1,ifull
       uout(iq,k)=(9.*(uin(ieu(iq),k)+uin(iq,k))-uin(iwu(iq),k)-uin(ieeu(iq),k))/16.
       vout(iq,k)=(9.*(vin(inv(iq),k)+vin(iq,k))-vin(isv(iq),k)-vin(innv(iq),k))/16.
     end do
@@ -117,7 +117,7 @@ if ( nstag==3 ) then
          
   ! precalculate rhs terms with iwwu2 & issv2
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ud(iq,k)=uin(iq,k)/2.+uin(ieu(iq),k)+uin(ieeu(iq),k)/10.
       vd(iq,k)=vin(iq,k)/2.+vin(inv(iq),k)+vin(innv(iq),k)/10.
     end do
@@ -125,7 +125,7 @@ if ( nstag==3 ) then
 
   call boundsuv(ud,vd,stag=-10) ! inv, ieu
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ua(iq,k)=ud(iq,k)-ud(ieu(iq),k)/2. ! 1st guess
       va(iq,k)=vd(iq,k)-vd(inv(iq),k)/2. ! 1st guess
     end do
@@ -137,7 +137,7 @@ if ( nstag==3 ) then
 
   !!$acc parallel loop collapse(2) present(ug,vg,ua,va)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ug(iq,k)=ua(iq,k)
       vg(iq,k)=va(iq,k)
     end do
@@ -149,7 +149,7 @@ if ( nstag==3 ) then
     !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ua,va,iwu,isv,ieeu,innv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         uin(iq,k)=(ug(iq,k)-ua(iwu(iq),k)/10. +ua(ieeu(iq),k)/4.)/.95
         vin(iq,k)=(vg(iq,k)-va(isv(iq),k)/10. +va(innv(iq),k)/4.)/.95
       end do
@@ -160,7 +160,7 @@ if ( nstag==3 ) then
     !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ua,va,iwu,isv,ieeu,innv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         ua(iq,k)=(ug(iq,k)-uin(iwu(iq),k)/10. +uin(ieeu(iq),k)/4.)/.95
         va(iq,k)=(vg(iq,k)-vin(isv(iq),k)/10. +vin(innv(iq),k)/4.)/.95
       end do
@@ -172,7 +172,7 @@ if ( nstag==3 ) then
   !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ua,va,iwu,isv,ieeu,innv)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       uin(iq,k)=(ug(iq,k)-ua(iwu(iq),k)/10. +ua(ieeu(iq),k)/4.)/.95
       vin(iq,k)=(vg(iq,k)-va(isv(iq),k)/10. +va(innv(iq),k)/4.)/.95
     end do
@@ -183,7 +183,7 @@ if ( nstag==3 ) then
   !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,iwu,isv,ieeu,innv) copyout(uout,vout)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       uout(iq,k)=(ug(iq,k)-uin(iwu(iq),k)/10. +uin(ieeu(iq),k)/4.)/.95
       vout(iq,k)=(vg(iq,k)-vin(isv(iq),k)/10. +vin(innv(iq),k)/4.)/.95
     end do
@@ -195,7 +195,7 @@ else !if ( nstag==4 ) then
   call boundsuv(uin,vin,stag=3) ! issv, isv, inv, iwwu, iwu, ieu
 
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ua(iq,k)=-0.05*uin(iwwu(iq),k)-0.4*uin(iwu(iq),k)+0.75*uin(iq,k)+0.5*uin(ieu(iq),k) ! 1st guess
       va(iq,k)=-0.05*vin(issv(iq),k)-0.4*vin(isv(iq),k)+0.75*vin(iq,k)+0.5*vin(inv(iq),k) ! 1st guess
     end do
@@ -207,7 +207,7 @@ else !if ( nstag==4 ) then
 
   !!$acc parallel loop collapse(2) present(ug,vg,ua,va)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ug(iq,k)=ua(iq,k)
       vg(iq,k)=va(iq,k)
     end do
@@ -219,7 +219,7 @@ else !if ( nstag==4 ) then
     !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ua,va,ieu,inv,iwwu,issv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         uin(iq,k)=(ug(iq,k)-ua(ieu(iq),k)/10. +ua(iwwu(iq),k)/4.)/.95
         vin(iq,k)=(vg(iq,k)-va(inv(iq),k)/10. +va(issv(iq),k)/4.)/.95
       end do
@@ -230,7 +230,7 @@ else !if ( nstag==4 ) then
     !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ua,va,ieu,inv,iwwu,issv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         ua(iq,k)=(ug(iq,k)-uin(ieu(iq),k)/10. +uin(iwwu(iq),k)/4.)/.95
         va(iq,k)=(vg(iq,k)-vin(inv(iq),k)/10. +vin(issv(iq),k)/4.)/.95
       end do
@@ -242,7 +242,7 @@ else !if ( nstag==4 ) then
   !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ua,va,ieu,inv,iwwu,issv)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)      
+    do iq = 1,ifull      
       uin(iq,k)=(ug(iq,k)-ua(ieu(iq),k)/10. +ua(iwwu(iq),k)/4.)/.95
       vin(iq,k)=(vg(iq,k)-va(inv(iq),k)/10. +va(issv(iq),k)/4.)/.95
     end do
@@ -253,7 +253,7 @@ else !if ( nstag==4 ) then
   !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ieu,inv,iwwu,issv) copyout(uout,vout)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)      
+    do iq = 1,ifull      
       uout(iq,k)=(ug(iq,k)-uin(ieu(iq),k)/10. +uin(iwwu(iq),k)/4.)/.95
       vout(iq,k)=(vg(iq,k)-vin(inv(iq),k)/10. +vin(issv(iq),k)/4.)/.95
     end do
@@ -305,7 +305,7 @@ vin(1:ifull,1:kx) = v(1:ifull,1:kx)
 if (abs(nstagu)<3) then
   call boundsuv(uin,vin,stag=3)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)
+    do iq = 1,ifull
       uout(iq,k)=(9.*(uin(iwu(iq),k)+uin(iq,k))-uin(iwwu(iq),k)-uin(ieu(iq),k))/16.
       vout(iq,k)=(9.*(vin(isv(iq),k)+vin(iq,k))-vin(issv(iq),k)-vin(inv(iq),k))/16.
     end do
@@ -317,7 +317,7 @@ if ( nstagu==3 ) then
   call boundsuv(uin,vin,stag=5) ! issv, isv, iwwu, iwu
   ! precalculate rhs terms with iwwu2 & issv2
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ud(iq,k)=uin(iq,k)/2.+uin(iwu(iq),k)+uin(iwwu(iq),k)/10.
       vd(iq,k)=vin(iq,k)/2.+vin(isv(iq),k)+vin(issv(iq),k)/10.
     end do
@@ -325,7 +325,7 @@ if ( nstagu==3 ) then
 
   call boundsuv(ud,vd,stag=-9) ! isv, iwu
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ua(iq,k)=ud(iq,k)-ud(iwu(iq),k)/2. ! 1st guess
       va(iq,k)=vd(iq,k)-vd(isv(iq),k)/2. ! 1st guess
     end do
@@ -337,7 +337,7 @@ if ( nstagu==3 ) then
 
   !!$acc parallel loop collapse(2) present(ug,vg,ua,va)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ug(iq,k)=ua(iq,k)
       vg(iq,k)=va(iq,k)
     end do
@@ -349,7 +349,7 @@ if ( nstagu==3 ) then
     !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,ua,va,uin,vin,ieu,inv,iwwu,issv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         uin(iq,k)=(ug(iq,k)-ua(ieu(iq),k)/10. +ua(iwwu(iq),k)/4.)/.95
         vin(iq,k)=(vg(iq,k)-va(inv(iq),k)/10. +va(issv(iq),k)/4.)/.95
       end do
@@ -360,7 +360,7 @@ if ( nstagu==3 ) then
     !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,ua,va,uin,vin,ieu,inv,iwwu,issv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         ua(iq,k)=(ug(iq,k)-uin(ieu(iq),k)/10. +uin(iwwu(iq),k)/4.)/.95
         va(iq,k)=(vg(iq,k)-vin(inv(iq),k)/10. +vin(issv(iq),k)/4.)/.95
       end do
@@ -372,7 +372,7 @@ if ( nstagu==3 ) then
   !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,ua,va,uin,vin,ieu,inv,iwwu,issv)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       uin(iq,k)=(ug(iq,k)-ua(ieu(iq),k)/10. +ua(iwwu(iq),k)/4.)/.95
       vin(iq,k)=(vg(iq,k)-va(inv(iq),k)/10. +va(issv(iq),k)/4.)/.95
     end do
@@ -383,7 +383,7 @@ if ( nstagu==3 ) then
   !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,ieu,inv,iwwu,issv) copyout(uout,vout)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       uout(iq,k)=(ug(iq,k)-uin(ieu(iq),k)/10. +uin(iwwu(iq),k)/4.)/.95
       vout(iq,k)=(vg(iq,k)-vin(inv(iq),k)/10. +vin(issv(iq),k)/4.)/.95
     end do
@@ -395,7 +395,7 @@ else !if ( nstagu==4 ) then
   call boundsuv(uin,vin,stag=2) ! isv, inv, innv, iwu, ieu, ieeu
 
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ua(iq,k)=-0.05*uin(ieeu(iq),k)-0.4*uin(ieu(iq),k)+0.75*uin(iq,k)+0.5*uin(iwu(iq),k) ! 1st guess
       va(iq,k)=-0.05*vin(innv(iq),k)-0.4*vin(inv(iq),k)+0.75*vin(iq,k)+0.5*vin(isv(iq),k) ! 1st guess
     end do
@@ -407,7 +407,7 @@ else !if ( nstagu==4 ) then
 
   !!$acc parallel loop collapse(2) present(ug,vg,ua,va)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       ug(iq,k)=ua(iq,k)
       vg(iq,k)=va(iq,k)
     end do
@@ -419,7 +419,7 @@ else !if ( nstagu==4 ) then
     !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,ua,va,uin,vin,iwu,isv,ieeu,innv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         uin(iq,k)=(ug(iq,k)-ua(iwu(iq),k)/10. +ua(ieeu(iq),k)/4.)/.95
         vin(iq,k)=(vg(iq,k)-va(isv(iq),k)/10. +va(innv(iq),k)/4.)/.95
       end do
@@ -430,7 +430,7 @@ else !if ( nstagu==4 ) then
     !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
     !!$acc parallel loop collapse(2) present(ug,vg,ua,va,uin,vin,iwu,isv,ieeu,innv)
     do k = 1,kx
-      do concurrent (iq = 1:ifull)  
+      do iq = 1,ifull  
         ua(iq,k)=(ug(iq,k)-uin(iwu(iq),k)/10. +uin(ieeu(iq),k)/4.)/.95
         va(iq,k)=(vg(iq,k)-vin(isv(iq),k)/10. +vin(innv(iq),k)/4.)/.95
       end do
@@ -442,7 +442,7 @@ else !if ( nstagu==4 ) then
   !!$acc update device(ua(ifull+1:ifull+iextra,:),va(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,ua,va,uin,vin,iwu,isv,ieeu,innv)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)      
+    do iq = 1,ifull      
       uin(iq,k)=(ug(iq,k)-ua(iwu(iq),k)/10. +ua(ieeu(iq),k)/4.)/.95
       vin(iq,k)=(vg(iq,k)-va(isv(iq),k)/10. +va(innv(iq),k)/4.)/.95
     end do
@@ -453,7 +453,7 @@ else !if ( nstagu==4 ) then
   !!$acc update device(uin(ifull+1:ifull+iextra,:),vin(ifull+1:ifull+iextra,:))
   !!$acc parallel loop collapse(2) present(ug,vg,uin,vin,iwu,isv,ieeu,innv) copyout(uout,vout)
   do k = 1,kx
-    do concurrent (iq = 1:ifull)  
+    do iq = 1,ifull  
       uout(iq,k)=(ug(iq,k)-uin(iwu(iq),k)/10. +uin(ieeu(iq),k)/4.)/.95
       vout(iq,k)=(vg(iq,k)-vin(isv(iq),k)/10. +vin(innv(iq),k)/4.)/.95
     end do

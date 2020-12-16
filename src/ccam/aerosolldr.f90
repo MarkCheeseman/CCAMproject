@@ -2000,18 +2000,13 @@ integer, parameter :: ktop = 2    !Top level for wet deposition (counting from t
 logical, parameter :: assume_convliq = .true. ! assume convective rainfall is liquid
 
 !Below-cloud collection eff. for rain
-!real, dimension(naero), parameter :: zcollefr = (/0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.10,0.20,0.40,0.05,0.10/)
 real, dimension(naero), parameter :: zcollefr = (/0.10,0.10,0.10,0.10,0.10,0.10,0.10,0.05,0.10,0.20,0.40,0.05,0.10/)
 !Below-cloud collection eff. for snow
-!real, dimension(naero), parameter :: zcollefs = (/0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.02,0.04,0.08,0.01,0.02/)
 real, dimension(naero), parameter :: zcollefs = (/0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.01,0.02,0.04,0.08,0.01,0.02/)
 !Retention coeff. on riming
 real, dimension(naero), parameter :: Rcoeff = (/1.00,0.62,1.00,0.00,1.00,0.00,1.00,1.00,1.00,1.00,1.00,1.00,1.00/)
 ! Allow in-cloud scavenging in ice clouds for hydrophobic BC and OC, and dust
 real, dimension(naero), parameter :: Ecols = (/0.00,0.00,0.00,0.05,0.00,0.05,0.00,0.05,0.05,0.05,0.05,0.05,0.05/)
-! wet deposition coefficients
-!!Relative re-evaporation rate
-!real, dimension(naero), parameter :: Evfac = (/0.25,1.00,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25/)
 
 ! Start code : ----------------------------------------------------------
 
@@ -2025,18 +2020,18 @@ zcollefr_k = zcollefr(ktrac)
 !!$acc update device(psolub,pxtp10,pxtp1c,pxtp1con,wd)
 
 !!$acc parallel loop present(zdepr,zdeps)
-do concurrent (i=1:imax)
+do i=1,imax
   zdepr(i) = 0.
   zdeps(i) = 0.
-end do
+enddo
 !!$acc end parallel loop
 
 !!$acc parallel loop collapse(2) present(pdep3d)
-do concurrent (jk=1:kl)
-  do concurrent (i=1:imax)
+do jk=1,kl
+do i=1,imax
     pdep3d(i,jk) = 0.
-  end do
-end do
+enddo
+enddo
 !!$acc end parallel loop
 
 !     BEGIN OF VERTICAL LOOP
@@ -2045,7 +2040,7 @@ do JK = KTOP,kl
   !!$acc parallel loop present(pxtp1c,pxtp10,pclcover,pcfcover,pclcon,pqfsedice,pdep3d,             &
   !!$acc   zdeps,zdepr,pmlwc,psolub,pmaccr,plambs,pfsnow,pfsubl,pfstayice,pfmelt,pmratep,prscav,    &
   !!$acc   prfreeze,pfprec,rhodz)
-  do concurrent (i=1:imax)
+  do i=1,imax
 
     !ZCLEAR = 1. - PCLCOVER(i,JK) - pcfcover(i,jk) - pclcon(i,jk)
     ZCLR0 = 1. - PCLCOVER(i,JK) - pclcon(i,jk) !Clear air or ice cloud (applies to pxtp10)
@@ -2148,7 +2143,7 @@ end do !   END OF VERTICAL LOOP
 
 do jk = ktop,kl
   !!$acc parallel loop present(rhodz,pclcover,pclcon,ptp1,zcollefc,pfconv,fracc,pxtp10,pdep3d)
-  do concurrent (i=1:imax)
+  do i=1,imax
     zmtof = rhodz(i,jk)*pqtmst
     zclr0 = 1. - pclcover(i,jk) - pclcon(i,jk)
 
@@ -2173,35 +2168,14 @@ do jk = ktop,kl
       !conwd(i,ktrac) = conwd(i,ktrac) + xbcscav*zclr0*zmtof
     end if
 
-    ! Below-cloud reevaporation of convective rain
-    ! This never triggers for JLM convection because pcevap=0.
-    ! lmask(:) = jk>kbase(:) .and. pfconv(:,jk-1)>zmin .and. zclr0(:)>zmin
-    ! where ( lmask(:) )
-    !   pcevap = pfconv(:,jk-1) - pfconv(:,jk)
-    !   zevap = pcevap/pfconv(:,jk-1)
-    ! elsewhere
-    !   zevap(:)=0.
-    ! end where
-    ! where ( lmask(:) .and. zevap<1. )
-    !   zevap = Evfac(ktrac)*zevap
-    ! end where
-    ! where ( lmask(:) )
-    !   zevap = max( 0., min( 1., zevap ) )
-    !   xevap = conwd(:,ktrac)*zevap/zmtof(:) !xevap is the grid-box-mean m.r. change
-    !   pdep3d(:,jk) = pdep3d(:,jk) - xevap
-    !   pxtp10(:,jk) = pxtp10(:,jk) + xevap/zclr0(:)
-    !   conwd(:,ktrac) = conwd(:,ktrac) - xevap*zmtof(:)
-    !   conwd(:,ktrac) = max( 0., conwd(:,ktrac) )
-    ! end where
-
   end do
   !!$acc end parallel loop
   
 end do
 
 !!$acc parallel loop collapse(2) copy(xte) copyin(xtm1) present(pxtp10,pxtp1c,pxtp1con,pclcover,pclcon)
-do concurrent (JK=KTOP:kl)
-  do concurrent (i=1:imax)
+do JK=KTOP,kl
+  do i=1,imax
     ZXTP1=(1.-pclcover(i,jk)-pclcon(i,jk))*PXTP10(i,JK)+ &
               PCLCOVER(i,JK)*PXTP1C(i,JK)+               &
               pclcon(i,jk)*pxtp1con(i,jk)
@@ -2213,13 +2187,11 @@ do concurrent (JK=KTOP:kl)
 end do
 !!$acc end parallel loop
 
-do concurrent (jk=1:kl)
-  !!$acc parallel loop present(pdep3d,rhodz,wd)
-  do concurrent (i=1:imax)
-    wd(i) = wd(i) + pqtmst*pdep3d(i,jk)*rhodz(i,jk)
-  end do
-  !!$acc end parallel loop
-end do
+do jk=1,kl
+do i=1,imax
+   wd(i) = wd(i) + pqtmst*pdep3d(i,jk)*rhodz(i,jk)
+enddo
+enddo
 
 !!$acc update device(wd)
 !!$acc exit data delete(zdepr,zdeps,zmtof,zclr0,zcollefc,psolub,pxtp10,pxtp1c,pxtp1con,pdep3d,wd)
