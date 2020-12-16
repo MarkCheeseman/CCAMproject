@@ -21,7 +21,9 @@ IPOFLAG =
 VTHRESH =
 MPISPECIAL =
 ifeq ($(XEONPHI),yes)
-FHOST = -O3 -xMIC-AVX512
+FHOST = -Ofast -xMIC-AVX512 -fast-transcendentals -assume buffered_io -align array64byte 
+IPFLAG = -ip
+IPOFLAG = -ipo
 endif
 ifeq ($(BROADWELL),yes)
 FHOST = -O3 -xCORE-AVX2
