@@ -1,6 +1,6 @@
 FC = mpif90
 FCSCM = ifort
-CC = cc
+CC = icc
 
 # Common compiler flags
 ifneq ($(CUSTOM),yes)
@@ -21,7 +21,9 @@ IPOFLAG =
 VTHRESH =
 MPISPECIAL =
 ifeq ($(XEONPHI),yes)
-FHOST = -Ofast -xMIC-AVX512 -fast-transcendentals -assume buffered_io -align array64byte 
+FHOST = -Ofast -xMIC-AVX512 -fast-transcendentals -assume buffered_io -align array64byte -mkl
+IPFLAG = -ip
+IPOFLAG = -ipo
 endif
 ifeq ($(BROADWELL),yes)
 FHOST = -O3 -xCORE-AVX2
@@ -38,12 +40,12 @@ VTHRESH = -vec-threshold0
 endif
 # OpenMP compile flag
 ifeq ($(OMP),yes)
-OMPFLAG = -qopenmp -qno-openmp-simd
+OMPFLAG = -qopenmp 
 else
 OMPFLAG =
 endif
 # Default intel compiler options
-FFLAGS = $(FHOST) -ftz -no-fma $(MPIFLAG) $(NCFLAG) $(OMPFLAG)
+FFLAGS = $(FHOST) $(MPIFLAG) $(NCFLAG) $(OMPFLAG)
 LIBS = -L $(NETCDF_ROOT)/lib -lnetcdf
 ifneq ($(NCCLIB),yes)
 LIBS += -lnetcdff
@@ -146,11 +148,13 @@ endif
 #endif
 
 # Options for building with VAMPIRTrace
+ifeq ($(timing),yes)
 ifeq ($(VT),yes)
 FC = vtfort -vt:fc mpif90 -vt:inst manual
 FFLAGS += -Dvampir -DVTRACE
 else
 FFLAGS += -Dsimple_timer
+endif
 endif
 
 # Testing - I/O and fpmodel
