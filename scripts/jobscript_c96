@@ -1,0 +1,48 @@
+#!/bin/bash
+#rj queue=test
+#rj name=c96_1node
+#rj io=1
+#rj knl=1 
+#rj nodes=1
+#rj taskspernode=68
+#rj runtime=1.5
+#rj features=roce
+
+###############################################################
+# User defined variables
+
+resolution=C96
+export OMP_NUM_THREADS=2
+ompi_flags="--bind-to core -map-by node --mca pml ucx -mca coll_hcoll_enable 1 -mca coll_hcoll_np 0"
+
+###############################################################
+# Set up the compute node environment 
+
+module use /p9/dug/teamhpc/tests_for_candidate/markc/modulefiles
+module load openmpi/4.0.5-hpcx-icc hdf5/1.10.7 netcdf/4.7.4 
+export OMP_STACKSIZE=1g OMP_PLACES=cores OMP_PROC_BIND=close OMP_MAX_ACTIVE_LEVELS=3
+ulimit -s unlimited
+
+
+###############################################################
+# Set up the working directory
+
+work_dir=/p9/dug/teamhpc/sw/CCAMproject/work_${SLURM_NNODES}nodes
+
+if [[ -d ${work_dir} ]]
+then
+   rm -rf ${work_dir}
+fi
+
+mkdir -p ${work_dir}
+cd ${work_dir}
+mkdir RESTART daily OUTPUT
+cp /p9/dug/teamhpc/sw/CCAMproject/input_data/${resolution}/input .
+ln -s /p9/dug/teamhpc/sw/CCAMproject/input_data/erai/ccam_eraint_200001.nc .
+
+
+###############################################################
+# Run the CCAM executable
+
+#/d/sw/hpc/bin/mpi_commtest
+mpirun -np $SLURM_NTASKS ${ompi_flags} /p9/dug/teamhpc/sw/CCAMproject/bin/globpea 
