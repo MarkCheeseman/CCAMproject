@@ -338,23 +338,25 @@ elsewhere
 end where
 
 
-!mpch#ifndef GPU
-!if ( nmaxpr==1 .and. mydiag ) then
-!  write(6,*) 'entering leoncld'
-!  diag_temp(:) = qg(idjd,:)
-!  write(6,"('qv  ',9f8.3/4x,9f8.3)") diag_temp(:)
-!  diag_temp(:) = qfg(idjd,:)
-!  write(6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp(:)
-!  diag_temp(:) = qlg(idjd,:)
-!  write(6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp(:)
-!  diag_temp(:) = qrg(idjd,:)
-!  write(6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp(:)
-!  diag_temp(:) = qsng(idjd,:)
-!  write(6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp(:)
-!  diag_temp(:) = qgrg(idjd,:) 
-!  write(6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp(:)
-!endif
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+if ( nmaxpr==1 .and. mydiag ) then
+  write(6,*) 'entering leoncld'
+  diag_temp(:) = qg(idjd,:)
+  write(6,"('qv  ',9f8.3/4x,9f8.3)") diag_temp(:)
+  diag_temp(:) = qfg(idjd,:)
+  write(6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp(:)
+  diag_temp(:) = qlg(idjd,:)
+  write(6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp(:)
+  diag_temp(:) = qrg(idjd,:)
+  write(6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp(:)
+  diag_temp(:) = qsng(idjd,:)
+  write(6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp(:)
+  diag_temp(:) = qgrg(idjd,:) 
+  write(6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp(:)
+endif
+#endif
+#endif
 
 
 ! Calculate convective cloud fraction and adjust moisture variables before calling newcloud
@@ -376,34 +378,36 @@ do k = 1,kl
 end do
 
 
-!mpch #ifndef GPU
-!if ( nmaxpr==1 .and. mydiag ) then
-!  write(6,*) 'before newcloud'
-!  diag_temp(:) = t(idjd,:)
-!  write(6,"('t   ',9f8.2/4x,9f8.2)") diag_temp
-!  diag_temp(:) = qg(idjd,:)
-!  write(6,"('qv  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qfg(idjd,:)
-!  write(6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qlg(idjd,:)
-!  write(6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qrg(idjd,:)
-!  write(6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qsng(idjd,:)
-!  write(6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qgrg(idjd,:)
-!  write(6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qenv(idjd,:)
-!  write(6,"('qnv ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qsatg(idjd,:)
-!  write(6,"('qsat',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qcl(idjd,:)
-!  write(6,"('qcl ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = clcon(idjd,:)
-!  write(6,"('clc ',9f8.3/4x,9f8.3)") diag_temp
-!  write(6,*) 'kbase,ktop ',kbase(idjd),ktop(idjd)
-!endif
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+if ( nmaxpr==1 .and. mydiag ) then
+  write(6,*) 'before newcloud'
+  diag_temp(:) = t(idjd,:)
+  write(6,"('t   ',9f8.2/4x,9f8.2)") diag_temp
+  diag_temp(:) = qg(idjd,:)
+  write(6,"('qv  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qfg(idjd,:)
+  write(6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qlg(idjd,:)
+  write(6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qrg(idjd,:)
+  write(6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qsng(idjd,:)
+  write(6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qgrg(idjd,:)
+  write(6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qenv(idjd,:)
+  write(6,"('qnv ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qsatg(idjd,:)
+  write(6,"('qsat',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qcl(idjd,:)
+  write(6,"('qcl ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = clcon(idjd,:)
+  write(6,"('clc ',9f8.3/4x,9f8.3)") diag_temp
+  write(6,*) 'kbase,ktop ',kbase(idjd),ktop(idjd)
+endif
+#endif
+#endif
 
 
 !     Calculate cloud fraction and cloud water mixing ratios
@@ -421,27 +425,29 @@ do k = 2,kl-1
 end do
      
 
-!mpch #ifndef GPU
-!if ( nmaxpr==1 .and. mydiag ) then
-!  write(6,*) 'after newcloud'
-!  diag_temp(:) = tenv(idjd,:)
-!  write (6,"('tnv ',9f8.2/4x,9f8.2)") diag_temp
-!  diag_temp(:) = qg(idjd,:) 
-!  write (6,"('qv0 ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qfg(idjd,:)
-!  write (6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qlg(idjd,:)
-!  write (6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qrg(idjd,:)
-!  write (6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qsng(idjd,:)
-!  write (6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qgrg(idjd,:)
-!  write (6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qenv(idjd,:) ! really new qg
-!  write (6,"('qnv ',9f8.3/4x,9f8.3)") diag_temp
-!endif
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG
+if ( nmaxpr==1 .and. mydiag ) then
+  write(6,*) 'after newcloud'
+  diag_temp(:) = tenv(idjd,:)
+  write (6,"('tnv ',9f8.2/4x,9f8.2)") diag_temp
+  diag_temp(:) = qg(idjd,:) 
+  write (6,"('qv0 ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qfg(idjd,:)
+  write (6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qlg(idjd,:)
+  write (6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qrg(idjd,:)
+  write (6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qsng(idjd,:)
+  write (6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qgrg(idjd,:)
+  write (6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qenv(idjd,:) ! really new qg
+  write (6,"('qnv ',9f8.3/4x,9f8.3)") diag_temp
+endif
+#endif
+#endif
 
 
 !     Weight output variables according to non-convective fraction of grid-box            
@@ -458,6 +464,7 @@ end do
 
 
 #ifndef GPU
+#ifdef PHYSICS_DIAG 
 if ( nmaxpr==1 .and. mydiag ) then
   write(6,*) 'before newsnowrain'
   diag_temp(:) = t(idjd,:)
@@ -469,15 +476,16 @@ if ( nmaxpr==1 .and. mydiag ) then
   diag_temp(:) = qlg(idjd,:)
   write (6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
 endif
-!if ( diag .and. ntiles==1 ) then
-!  call maxmin(t,' t',ktau,1.,kl)
-!  call maxmin(qg,'qv',ktau,1.e3,kl)
-!  call maxmin(qfg,'qf',ktau,1.e3,kl)
-!  call maxmin(qlg,'ql',ktau,1.e3,kl)
-!  call maxmin(qrg,'qr',ktau,1.e3,kl)
-!  call maxmin(qsng,'qs',ktau,1.e3,kl)
-!  call maxmin(qgrg,'qg',ktau,1.e3,kl)
-!endif
+if ( diag .and. ntiles==1 ) then
+  call maxmin(t,' t',ktau,1.,kl)
+  call maxmin(qg,'qv',ktau,1.e3,kl)
+  call maxmin(qfg,'qf',ktau,1.e3,kl)
+  call maxmin(qlg,'ql',ktau,1.e3,kl)
+  call maxmin(qrg,'qr',ktau,1.e3,kl)
+  call maxmin(qsng,'qs',ktau,1.e3,kl)
+  call maxmin(qgrg,'qg',ktau,1.e3,kl)
+endif
+#endif
 #endif
 
 
@@ -503,32 +511,34 @@ call newsnowrain(dt,rhoa,dz,prf,cdrop,t,qlg,qfg,qrg,qsng,qgrg,                  
 
 
 #ifndef GPU
-!mpch if ( nmaxpr==1 .and. mydiag ) then
-!  write(6,*) 'after newsnowrain'
-!  diag_temp(:) = t(idjd,:)
-!  write (6,"('t   ',9f8.2/4x,9f8.2)") diag_temp
-!  diag_temp(:) = qg(idjd,:)
-!  write (6,"('qv  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qfg(idjd,:)
-!  write (6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qlg(idjd,:)
-!  write (6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qrg(idjd,:)
-!  write (6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qsng(idjd,:)
-!  write (6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp
-!  diag_temp(:) = qgrg(idjd,:)
-!  write (6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp
-!end if
-!if ( diag .and. ntiles==1 ) then
-!  call maxmin(t,' t',ktau,1.,kl)
-!  call maxmin(qg,'qv',ktau,1.e3,kl)
-!  call maxmin(qfg,'qf',ktau,1.e3,kl)
-!  call maxmin(qlg,'ql',ktau,1.e3,kl)
-!  call maxmin(qrg,'qr',ktau,1.e3,kl)
-!  call maxmin(qsng,'qs',ktau,1.e3,kl)
-!  call maxmin(qgrg,'qg',ktau,1.e3,kl)
-!endif
+#ifdef PHYSICS_DIAG 
+if ( nmaxpr==1 .and. mydiag ) then
+  write(6,*) 'after newsnowrain'
+  diag_temp(:) = t(idjd,:)
+  write (6,"('t   ',9f8.2/4x,9f8.2)") diag_temp
+  diag_temp(:) = qg(idjd,:)
+  write (6,"('qv  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qfg(idjd,:)
+  write (6,"('qf  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qlg(idjd,:)
+  write (6,"('ql  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qrg(idjd,:)
+  write (6,"('qr  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qsng(idjd,:)
+  write (6,"('qs  ',9f8.3/4x,9f8.3)") diag_temp
+  diag_temp(:) = qgrg(idjd,:)
+  write (6,"('qg  ',9f8.3/4x,9f8.3)") diag_temp
+end if
+#endif
+if ( diag .and. ntiles==1 ) then
+  call maxmin(t,' t',ktau,1.,kl)
+  call maxmin(qg,'qv',ktau,1.e3,kl)
+  call maxmin(qfg,'qf',ktau,1.e3,kl)
+  call maxmin(qlg,'ql',ktau,1.e3,kl)
+  call maxmin(qrg,'qr',ktau,1.e3,kl)
+  call maxmin(qsng,'qs',ktau,1.e3,kl)
+  call maxmin(qgrg,'qg',ktau,1.e3,kl)
+endif
 #endif
 
 
@@ -711,21 +721,23 @@ real, parameter :: cm0 = 1.e-12 !Initial crystal mass
 ! Start code : ----------------------------------------------------------
 
 
-!mpch #ifndef GPU
-!if ( diag.and.mydiag ) then
-!  write(6,*) 'entering newcloud'
-!  diag_temp(:) = prf(idjd,:)
-!  write(6,'(a,30f10.3)') 'prf ',diag_temp
-!  diag_temp(:) = ttg(idjd,:)
-!  write(6,'(a,30f10.3)') 'ttg ',diag_temp
-!  diag_temp(:) = qtg(idjd,:)
-!  write(6,*) 'qtg ',diag_temp
-!  diag_temp(:) = qlg(idjd,:)
-!  write(6,*) 'qlg ',diag_temp
-!  diag_temp(:) = qfg(idjd,:)
-!  write(6,*) 'qfg ',diag_temp
-!end if
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+if ( diag.and.mydiag ) then
+  write(6,*) 'entering newcloud'
+  diag_temp(:) = prf(idjd,:)
+  write(6,'(a,30f10.3)') 'prf ',diag_temp
+  diag_temp(:) = ttg(idjd,:)
+  write(6,'(a,30f10.3)') 'ttg ',diag_temp
+  diag_temp(:) = qtg(idjd,:)
+  write(6,*) 'qtg ',diag_temp
+  diag_temp(:) = qlg(idjd,:)
+  write(6,*) 'qlg ',diag_temp
+  diag_temp(:) = qfg(idjd,:)
+  write(6,*) 'qfg ',diag_temp
+end if
+#endif
+#endif
 
 ! First melt cloud ice or freeze cloud water to give correct ice fraction fice.
 ! Then calculate the cloud conserved variables qtot and tliq.
@@ -753,23 +765,25 @@ do k = 1,kl
   end do
 end do
 
-!mpch #ifndef GPU
-!if ( diag .and. mydiag ) then
-!  write(6,*) 'within newcloud'
-!  diag_temp = ttg(idjd,:)
-!  write(6,*) 'ttg ',diag_temp
-!  diag_temp = qcold(idjd,:)
-!  write(6,*) 'qcold ',diag_temp
-!  diag_temp = qcg(idjd,:)
-!  write(6,*) 'qcg ',diag_temp
-!  diag_temp = qlg(idjd,:)
-!  write(6,*) 'qlg ',diag_temp
-!  diag_temp = qfg(idjd,:)
-!  write(6,*) 'qfg ',diag_temp
-!  diag_temp = fice(idjd,:)
-!  write(6,*) 'fice ',diag_temp
-!end if
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+if ( diag .and. mydiag ) then
+  write(6,*) 'within newcloud'
+  diag_temp = ttg(idjd,:)
+  write(6,*) 'ttg ',diag_temp
+  diag_temp = qcold(idjd,:)
+  write(6,*) 'qcold ',diag_temp
+  diag_temp = qcg(idjd,:)
+  write(6,*) 'qcg ',diag_temp
+  diag_temp = qlg(idjd,:)
+  write(6,*) 'qlg ',diag_temp
+  diag_temp = qfg(idjd,:)
+  write(6,*) 'qfg ',diag_temp
+  diag_temp = fice(idjd,:)
+  write(6,*) 'fice ',diag_temp
+end if
+#endif
+#endif
 
 
 ! Precompute the array of critical relative humidities 
@@ -900,30 +914,32 @@ if ( ncloud<=3 ) then
     end do ! iq loop
   end do   ! k loop
 
-!mpch #ifndef GPU
-!  if ( diag .and. mydiag ) then
-!    diag_temp(:) = rcrit(idjd,:)
-!    write(6,*) 'rcrit ',diag_temp
-!    diag_temp(:) = qtot(idjd,:)
-!    write(6,*) 'qtot ',diag_temp
-!    !diag_temp(:) = qsi(idjd,:)
-!    !write(6,*) 'qsi',diag_temp
-!    diag_temp(:) = tliq(idjd,:)
-!    write(6,*) 'tliq',diag_temp
-!    !diag_temp(:) = qsl(idjd,:)
-!    !write(6,*) 'qsl ',diag_temp
-!    diag_temp(:) = qsw(idjd,:)
-!    write(6,*) 'qsw ',diag_temp
-!    diag_temp(:) = stratcloud(idjd,:)
-!    write(6,*) 'stratcloud',diag_temp
-!    diag_temp(:) = qtot(idjd,:)-qsw(idjd,:)
-!    write(6,*) 'qc  ',diag_temp  
-!    diag_temp(:) = qcg(idjd,:)
-!    write(6,*) 'qcg ',diag_temp
-!    diag_temp(:) = (1.-rcrit(idjd,:))*qsw(idjd,:)
-!    write(6,*) 'delq ',diag_temp 
-!  endif
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+  if ( diag .and. mydiag ) then
+    diag_temp(:) = rcrit(idjd,:)
+    write(6,*) 'rcrit ',diag_temp
+    diag_temp(:) = qtot(idjd,:)
+    write(6,*) 'qtot ',diag_temp
+    !diag_temp(:) = qsi(idjd,:)
+    !write(6,*) 'qsi',diag_temp
+    diag_temp(:) = tliq(idjd,:)
+    write(6,*) 'tliq',diag_temp
+    !diag_temp(:) = qsl(idjd,:)
+    !write(6,*) 'qsl ',diag_temp
+    diag_temp(:) = qsw(idjd,:)
+    write(6,*) 'qsw ',diag_temp
+    diag_temp(:) = stratcloud(idjd,:)
+    write(6,*) 'stratcloud',diag_temp
+    diag_temp(:) = qtot(idjd,:)-qsw(idjd,:)
+    write(6,*) 'qc  ',diag_temp  
+    diag_temp(:) = qcg(idjd,:)
+    write(6,*) 'qcg ',diag_temp
+    diag_temp(:) = (1.-rcrit(idjd,:))*qsw(idjd,:)
+    write(6,*) 'delq ',diag_temp 
+  endif
+#endif
+#endif
 
   ! Assume condensation or evaporation retains ice fraction fice.
   ! Introduce a time-decay factor for cirrus (as suggested by results of Khvorostyanov & Sassen,
@@ -1013,21 +1029,23 @@ do k = 1,kl
   ttg(:,k) = tliq(:,k) + hlcp*qcg(:,k) + hlfcp*qfg(:,k)
 end do
 
-!mpch #ifndef GPU
-!if ( diag .and. mydiag ) then
-!   write(6,*) 'at end of newcloud'
-!   diag_temp(:) = ttg(idjd,:)
-!   write(6,*) 'ttg ',diag_temp
-!   diag_temp(:) = qcg(idjd,:)
-!   write(6,*) 'qcg ',diag_temp
-!   diag_temp(:) = qlg(idjd,:)
-!   write(6,*) 'qlg ',diag_temp
-!   diag_temp(:) = qfg(idjd,:)
-!   write(6,*) 'qfg ',diag_temp
-!   diag_temp(:) = qtg(idjd,:)
-!   write(6,*) 'qtg ',diag_temp
-!end if
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+if ( diag .and. mydiag ) then
+   write(6,*) 'at end of newcloud'
+   diag_temp(:) = ttg(idjd,:)
+   write(6,*) 'ttg ',diag_temp
+   diag_temp(:) = qcg(idjd,:)
+   write(6,*) 'qcg ',diag_temp
+   diag_temp(:) = qlg(idjd,:)
+   write(6,*) 'qlg ',diag_temp
+   diag_temp(:) = qfg(idjd,:)
+   write(6,*) 'qfg ',diag_temp
+   diag_temp(:) = qtg(idjd,:)
+   write(6,*) 'qtg ',diag_temp
+end if
+#endif
+#endif
 
 return
 end subroutine newcloud
@@ -1310,32 +1328,34 @@ do k = 1,kl
 end do
 
 
-!mpch #ifndef GPU
-!if ( diag .and. mydiag ) then
-!  diag_temp(:) = stratcloud(idjd,:)
-!  write(6,*) 'stratcloud',diag_temp
-!  diag_temp(:) = cifr(idjd,:)
-!  write(6,*) 'cifr      ',diag_temp
-!  diag_temp(:) = clfr(idjd,:)
-!  write(6,*) 'clfr      ',diag_temp
-!  diag_temp(:) = cfrain(idjd,:)
-!  write(6,*) 'cfrain    ',diag_temp
-!  diag_temp(:) = cfsnow(idjd,:)
-!  write(6,*) 'cfsnow    ',diag_temp
-!  diag_temp(:) = cfgraupel(idjd,:) 
-!  write(6,*) 'cfgraupel ',diag_temp
-!  diag_temp(:) = qlg(idjd,:) 
-!  write(6,*) 'qlg ',diag_temp
-!  diag_temp(:) = qfg(idjd,:)
-!  write(6,*) 'qfg ',diag_temp
-!  diag_temp(:) = qrg(idjd,:)
-!  write(6,*) 'qrg ',diag_temp
-!  diag_temp(:) = qsng(idjd,:)
-!  write(6,*) 'qsng',diag_temp
-!  diag_temp(:) = qgrg(idjd,:)
-!  write(6,*) 'qgrg',diag_temp
-!endif  ! (diag.and.mydiag)
-!#endif
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
+if ( diag .and. mydiag ) then
+  diag_temp(:) = stratcloud(idjd,:)
+  write(6,*) 'stratcloud',diag_temp
+  diag_temp(:) = cifr(idjd,:)
+  write(6,*) 'cifr      ',diag_temp
+  diag_temp(:) = clfr(idjd,:)
+  write(6,*) 'clfr      ',diag_temp
+  diag_temp(:) = cfrain(idjd,:)
+  write(6,*) 'cfrain    ',diag_temp
+  diag_temp(:) = cfsnow(idjd,:)
+  write(6,*) 'cfsnow    ',diag_temp
+  diag_temp(:) = cfgraupel(idjd,:) 
+  write(6,*) 'cfgraupel ',diag_temp
+  diag_temp(:) = qlg(idjd,:) 
+  write(6,*) 'qlg ',diag_temp
+  diag_temp(:) = qfg(idjd,:)
+  write(6,*) 'qfg ',diag_temp
+  diag_temp(:) = qrg(idjd,:)
+  write(6,*) 'qrg ',diag_temp
+  diag_temp(:) = qsng(idjd,:)
+  write(6,*) 'qsng',diag_temp
+  diag_temp(:) = qgrg(idjd,:)
+  write(6,*) 'qgrg',diag_temp
+endif  ! (diag.and.mydiag)
+#endif
+#endif
 
 
 ! Use sub time-step if required
@@ -2297,61 +2317,59 @@ do k = 1,kl
   
 end do  
 
-!mpch #ifndef GPU
+#ifndef GPU
+#ifdef PHYSICS_DIAG 
 !      Adjust cloud fraction (and cloud cover) after precipitation
-!if ( nmaxpr==1 .and. mydiag ) then
-!  write(6,*) 'diags from newrain for idjd ',idjd
-!  diag_temp(:) = stratcloud(idjd,:)
-!  write (6,"('stratcloud',9f8.3/6x,9f8.3)") diag_temp
-!  diag_temp(:) = cfrain(idjd,:)
-!  write (6,"('cfrain    ',9f8.3/6x,9f8.3)") diag_temp
-!  diag_temp(:) = cfsnow(idjd,:)
-!  write (6,"('cfsnow    ',9f8.3/6x,9f8.3)") diag_temp
-!  diag_temp(:) = cfgraupel(idjd,:)
-!  write (6,"('cfgraupel ',9f8.3/6x,9f8.3)") diag_temp
-!end if
-!
-!! Diagnostics for debugging
-!if ( diag .and. mydiag ) then
-!  diag_temp(:) = stratcloud(idjd,:)
-!  write(6,*) 'stratcloud',diag_temp
-!  diag_temp(:) = cifr(idjd,:)
-!  write(6,*) 'cifr',diag_temp
-!  diag_temp(:) = clfr(idjd,:)
-!  write(6,*) 'clfr',diag_temp
-!  diag_temp(:) = ttg(idjd,:)
-!  write(6,*) 'ttg',diag_temp
-!  diag_temp(:) = qsatg(idjd,:)
-!  write(6,*) 'qsatg',diag_temp         
-!  diag_temp(:) = qlg(idjd,:)
-!  write(6,*) 'qlg',diag_temp
-!  diag_temp(:) = qfg(idjd,:)
-!  write(6,*) 'qfg',diag_temp
-!  diag_temp(:) = qrg(idjd,:)
-!  write(6,*) 'qrg',diag_temp
-!  diag_temp(:) = qsng(idjd,:)
-!  write(6,*) 'qsng',diag_temp
-!  diag_temp(:) = qgrg(idjd,:)
-!  write(6,*) 'qgrg',diag_temp
-!  diag_temp(:) = qsubl(idjd,:)
-!  write(6,*) 'qsubl',diag_temp
-!  diag_temp(:) = rhoa(idjd,:)
-!  write(6,*) 'rhoa',diag_temp
-!  diag_temp(:) = rhos(idjd,:)
-!  write(6,*) 'rhos',diag_temp
-!  diag_temp(:) = fluxs(idjd,:)
-!  write(6,*) 'fluxs ',diag_temp
-!  !diag_temp(1:kl-1) = foutice(idjd,1:kl-1)
-!  !write(6,*) 'foutice',diag_temp(1:kl-1)
-!  !diag_temp(1:kl-1) = fthruice(idjd,1:kl-1)
-!  !write(6,*) 'fthruice',diag_temp(1:kl-1)
-!  diag_temp(:) = pqfsedice(idjd,:)
-!  write(6,*) 'pqfsedice',diag_temp
-!  diag_temp(:) = fluxm(idjd,:)
-!  write(6,*) 'fluxm',diag_temp
-!  write(6,*) 'cifra,fluxsnow',cifra(idjd),fluxsnow(idjd)
-!end if  ! (diag.and.mydiag)
-!#endif
+if ( nmaxpr==1 .and. mydiag ) then
+  write(6,*) 'diags from newrain for idjd ',idjd
+  diag_temp(:) = stratcloud(idjd,:)
+  write (6,"('stratcloud',9f8.3/6x,9f8.3)") diag_temp
+  diag_temp(:) = cfrain(idjd,:)
+  write (6,"('cfrain    ',9f8.3/6x,9f8.3)") diag_temp
+  diag_temp(:) = cfsnow(idjd,:)
+  write (6,"('cfsnow    ',9f8.3/6x,9f8.3)") diag_temp
+  diag_temp(:) = cfgraupel(idjd,:)
+  write (6,"('cfgraupel ',9f8.3/6x,9f8.3)") diag_temp
+end if
+
+! Diagnostics for debugging
+if ( diag .and. mydiag ) then
+  diag_temp(:) = stratcloud(idjd,:)
+  write(6,*) 'stratcloud',diag_temp
+  diag_temp(:) = cifr(idjd,:)
+  write(6,*) 'cifr',diag_temp
+  diag_temp(:) = clfr(idjd,:)
+  write(6,*) 'clfr',diag_temp
+  diag_temp(:) = ttg(idjd,:)
+  write(6,*) 'ttg',diag_temp
+  diag_temp(:) = qsatg(idjd,:)
+  write(6,*) 'qsatg',diag_temp         
+  diag_temp(:) = qlg(idjd,:)
+  write(6,*) 'qlg',diag_temp
+  diag_temp(:) = qfg(idjd,:)
+  write(6,*) 'qfg',diag_temp
+  diag_temp(:) = qrg(idjd,:)
+  write(6,*) 'qrg',diag_temp
+  diag_temp(:) = qsng(idjd,:)
+  write(6,*) 'qsng',diag_temp
+  diag_temp(:) = qgrg(idjd,:)
+  write(6,*) 'qgrg',diag_temp
+  diag_temp(:) = qsubl(idjd,:)
+  write(6,*) 'qsubl',diag_temp
+  diag_temp(:) = rhoa(idjd,:)
+  write(6,*) 'rhoa',diag_temp
+  diag_temp(:) = rhos(idjd,:)
+  write(6,*) 'rhos',diag_temp
+  diag_temp(:) = fluxs(idjd,:)
+  write(6,*) 'fluxs ',diag_temp
+  diag_temp(:) = pqfsedice(idjd,:)
+  write(6,*) 'pqfsedice',diag_temp
+  diag_temp(:) = fluxm(idjd,:)
+  write(6,*) 'fluxm',diag_temp
+  write(6,*) 'cifra,fluxsnow',cifra(idjd),fluxsnow(idjd)
+end if  ! (diag.and.mydiag)
+#endif
+#endif
 
 return
 end subroutine newsnowrain
