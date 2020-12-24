@@ -252,7 +252,7 @@ globpea: $(OBJS)
 endif
 
 clean:
-	rm *.o *.i *.mod
+	rm *.o *.mod
 
 .SUFFIXES:.f90 .F90
 
