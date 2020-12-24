@@ -160,16 +160,6 @@ end do
 !$omp private(lpplambs,lppmaccr,lppmrate,lppqfsedice,lpprfreeze,lpprscav),            &
 !$omp private(lqccon,lqfg,lqfrad,lqg,lqgrg,lqlg,lqlrad,lqrg,lqsng,lt),                &
 !$omp private(ldpsldt,lnettend,lstratcloud,lclcon,lcdrop,idjd_t,mydiag_t)
-!$acc parallel loop copy(stratcloud,gfrac,rfrac,sfrac,t,qg,qgrg,qlg,qfg,qrg,qsng,      &
-!$acc   nettend,condg,conds,condx,precip)                                              &
-!$acc copyin(dpsldt,clcon,cdrop,kbsav,ktsav,land,ps,em,clcon,cdrop)                    &
-!$acc copyout(cfrac,qlrad,qfrad,qccon,ppfevap,ppfmelt,ppfprec,ppfsnow,ppfstayice,      &
-!$acc   ppfstayliq,ppfsubl,pplambs,ppmaccr,ppmrate,ppqfsedice,pprfreeze,pprscav)       &
-!$acc present(sig)                                                                     &
-!$acc private(lcfrac,lgfrac,lppfevap,lppfmelt,lppfprec,lppfsnow,lppfstayice,           &
-!$acc   lppfstayliq,lppfsubl,lpplambs,lppmaccr,lppmrate,lppqfsedice,lpprfreeze,        &
-!$acc   lpprscav,lqccon,lqfg,lqfrad,lqg,lqgrg,lqlg,lqlrad,lqrg,lqsng,lrfrac,lsfrac,lt, &
-!$acc   ldpsldt,lnettend,lstratcloud,lclcon,lcdrop)
 do tile = 1,ntiles
   is = (tile-1)*imax + 1
   ie = tile*imax
@@ -241,7 +231,6 @@ do tile = 1,ntiles
   end if
   
 end do
-!$acc end parallel
 !$omp end do nowait
 
 return
@@ -254,7 +243,6 @@ subroutine leoncld_work(cfrac,condg,conds,condx,gfrac,kbsav,ktsav,land,         
                         ps,qccon,qfg,qfrad,qg,qgrg,qlg,qlrad,qrg,qsng,rfrac,sfrac,t,    &
                         dpsldt,nettend,stratcloud,clcon,cdrop,em,idjd,mydiag,           &
                         ncloud,nclddia,nevapls,ldr,rcrit_l,rcrit_s,rcm,imax,kl)
-!$acc routine vector
 
 use const_phys                    ! Physical constants
 use estab                         ! Liquid saturation function
@@ -673,8 +661,7 @@ end subroutine leoncld_work
  subroutine newcloud(tdt,land,prf,rhoa,ttg,qtg,qlg,qfg,        &
                      dpsldt,nettend,stratcloud,em,idjd,mydiag, &
                      ncloud,nclddia,rcrit_l,rcrit_s,imax,kl)
-!$acc routine vector
- 
+
 ! This routine is part of the prognostic cloud water scheme
 
 use const_phys                    ! Physical constants
@@ -943,7 +930,6 @@ if ( ncloud<=3 ) then
   ! JAS, 55, 1822-1845, 1998). Their suggested range for the time constant is 0.5 to 2 hours.
   ! The grid-box-mean values of qtg and ttg are adjusted later on (below).
   decayfac = exp ( -tdt/7200. )      ! Try 2 hrs
-  !decayfac = 0.                     ! Instant adjustment (old scheme)
   do k = 1,kl
     where( ttg(:,k)>=Tice )
       qfg(:,k) = fice(:,k)*qcg(:,k)
@@ -973,7 +959,6 @@ else
                  dpsldt,nettend,stratcloud,imax,kl)
 
   decayfac = exp ( -tdt/7200. )      ! Try 2 hrs
-  !decayfac = 0.                     ! Instant adjustment (old scheme)
   do k = 1,kl
     where( ttg(:,k)>=Tice )
       qfg(:,k) = fice(:,k)*qcg(:,k)
@@ -1095,7 +1080,6 @@ subroutine newsnowrain(tdt_in,rhoa,dz,prf,cdrop,ttg,qlg,qfg,qrg,qsng,qgrg,precs,
                        cfsnow,cfgraupel,preci,precg,qevap,qsubl,qauto,qcoll,qaccr,qaccf,fluxr,            &
                        fluxi,fluxs,fluxg,fluxm,fluxf,pfstayice,pfstayliq,pqfsedice,pslopes,prscav,        &
                        condx,ktsav,idjd,mydiag,ncloud,nevapls,ldr,rcm,imax,kl)
-!$acc routine vector
 
 use const_phys                    ! Physical constants
 use estab                         ! Liquid saturation function
@@ -2374,7 +2358,6 @@ end subroutine newsnowrain
     
 subroutine progcloud(dt,qc,qtot,press,rho,fice,qs,t,rhcrit, &
                      dpsldt,nettend,stratcloud,imax,kl)
-!$acc routine vector
 
 use const_phys                    ! Physical constants
 use parm_m, only : qgmin          ! Model configuration
@@ -2508,15 +2491,6 @@ pure real function pow75_s(x)
      pow75_s = sqrt(x)
 end function
    
-!mpch pure function pow75_s(x) result(ans)
-!!$acc routine vector
-!implicit none
-!real, intent(in) :: x
-!real ans, y
-!y=sqrt(x)
-!ans=y*sqrt(y)
-!end function pow75_s
-
 pure function pow75_v(x) result(ans)
 !$acc routine vector
 implicit none
