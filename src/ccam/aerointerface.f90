@@ -287,6 +287,7 @@ do tile = 1,ntiles
   dust_burden(is:ie,:) = ldust_burden
   
 #ifndef GPU  
+#ifdef PHYSICS_DIAG
   if ( diag .and. mydiag_t ) then
     write(6,*) "tdiag ",t(idjd,:)
     write(6,*) "qgdiag ",qg(idjd,:)
@@ -309,6 +310,7 @@ do tile = 1,ntiles
     write(6,*) "saltfilmdiag ",xtg(idjd,:,12)
     write(6,*) "saltjetdiag  ",xtg(idjd,:,13)
   end if
+#endif
 #endif
   
 end do
