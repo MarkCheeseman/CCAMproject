@@ -1,11 +1,11 @@
 #!/bin/bash
 #rj queue=idle
-#rj name=c768_26nodes
+#rj name=c768_204nodes
 #rj io=1
 #rj knl=1 
-#rj nodes=26
+#rj nodes=204
 #rj taskspernode=68
-#rj runtime=2
+#rj runtime=5
 #rj features=roce
 
 ###############################################################

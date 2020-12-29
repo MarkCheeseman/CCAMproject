@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: intel/oneapi-hpckit
+
+%post
+    apt-get update
+    apt-get install -y git libnetcdf-dev libnetcdff-dev 
+
+    git clone --recursive https://github.com/MarkCheeseman/CCAMproject.git
+    cd CCAMproject/src
+    export NETCDF=/usr/lib/x86_64-linux-gnu
+    make buildall

@@ -1,11 +1,11 @@
 #!/bin/bash
-#rj queue=test
-#rj name=c96_1node
+#rj queue=idle
+#rj name=c96_6nodes
 #rj io=1
 #rj knl=1 
-#rj nodes=1
-#rj taskspernode=68
-#rj runtime=1.5
+#rj nodes=7
+#rj taskspernode=64
+#rj runtime=0.5
 #rj features=roce
 
 ###############################################################
