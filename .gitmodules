@@ -22,3 +22,6 @@
 [submodule "src/pcc2hist"]
 	path = src/pcc2hist
 	url = https://bitbucket.csiro.au/scm/ccam/pcc2hist.git
+[submodule "src/ccam"]
+	path = src/ccam
+	url = https://bitbucket.csiro.au/scm/ccam/ccam.git
