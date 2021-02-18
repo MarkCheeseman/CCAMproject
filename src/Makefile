@@ -63,5 +63,5 @@ build_terread:
 	cd terread && make -j$(NUM_TASKS) CUSTOM=yes FC=${FC} XFLAGS=${FCFLAGS} LIBS=${LIBS} PPFLAG90=${CPP} PPFLAG77=${CPP}
 	cp terread/terread ../bin/
 build_ccam:
-	cd ccam && make -j8 XEONPHI=yes OMP=yes NOMPI3=yes NETCDF_ROOT=${NETCDF} timing=yes NCMOD=yes 
+	cd ccam && make -j16 XEONPHI=yes OMP=yes NOMPI3=yes NETCDF_ROOT=${NETCDF} timing=yes NCMOD=yes 
 	cp ccam/globpea ../bin/
